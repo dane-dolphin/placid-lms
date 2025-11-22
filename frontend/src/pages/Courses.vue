@@ -178,7 +178,7 @@ const getCourseCount = () => {
 		doctype: 'LMS Course',
 	}).then((data) => {
 		courseCount.value = data
-		identifyUserPersona()
+		//identifyUserPersona()
 	})
 }
 
