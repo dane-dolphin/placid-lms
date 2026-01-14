@@ -86,11 +86,30 @@
 									<template #item="{ element: lesson }">
 										<div
 											class="outline-lesson pl-8 py-2 pr-4 text-ink-gray-9"
-											:class="
-												isActiveLesson(lesson.number) ? 'bg-surface-gray-3' : ''
-											"
+											:class="[
+												isActiveLesson(lesson.number) ? 'bg-surface-gray-3' : '',
+												!allowEdit && lesson.is_locked ? 'opacity-60 cursor-not-allowed' : '',
+											]"
 										>
+											<!-- ✅ LOCKED lesson: no navigation -->
+											<div
+												v-if="!allowEdit && lesson.is_locked"
+												class="flex items-center text-sm leading-5"
+												:title="lesson.lock_reason || __('Locked')"
+											>
+												<Lock class="h-4 w-4 stroke-1 mr-2 text-ink-gray-5" />
+												<span class="text-ink-gray-5">
+													{{ lesson.title }}
+												</span>
+
+												<span v-if="lesson.opens_at" class="ml-auto text-xs text-ink-gray-5">
+													{{ __('Opens on') }} {{ lesson.opens_at }}
+												</span>
+											</div>
+
+											<!-- ✅ UNLOCKED (or allowEdit): normal navigation -->
 											<router-link
+												v-else
 												:to="{
 													name: allowEdit ? 'LessonForm' : 'Lesson',
 													params: {
@@ -111,20 +130,17 @@
 													/>
 													<FileText
 														v-else-if="lesson.icon === 'icon-list'"
-														class="h-4 w-4 text-ink-gray-9 stroke-1 mr-2"
+														class="h-4 w-4 stroke-1 mr-2"
 													/>
+
 													{{ lesson.title }}
+
 													<Trash2
 														v-if="allowEdit"
-														@click.prevent="
-															trashLesson(lesson.name, chapter.name)
-														"
+														@click.prevent="trashLesson(lesson.name, chapter.name)"
 														class="h-4 w-4 text-ink-red-3 ml-auto invisible group-hover:visible"
 													/>
-													<Check
-														v-if="lesson.is_complete"
-														class="h-4 w-4 text-green-700 ml-2"
-													/>
+													<Check v-if="lesson.is_complete" class="h-4 w-4 text-green-700 ml-2" />
 												</div>
 											</router-link>
 										</div>
@@ -173,6 +189,7 @@ import {
 	FileText,
 	FilePenLine,
 	HelpCircle,
+	Lock,
 	MonitorPlay,
 	Trash2,
 } from 'lucide-vue-next'
