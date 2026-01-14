@@ -159,17 +159,17 @@ const isPersonaCaptured = async () => {
 	return persona
 }
 
-const identifyUserPersona = async () => {
-	if (user.data?.is_system_manager && !user.data?.developer_mode) {
-		let personaCaptured = await isPersonaCaptured()
-		if (personaCaptured) return
-		if (!courseCount.value) {
-			router.push({
-				name: 'PersonaForm',
-			})
-		}
-	}
-}
+// const identifyUserPersona = async () => {
+// 	if (user.data?.is_system_manager && !user.data?.developer_mode) {
+// 		let personaCaptured = await isPersonaCaptured()
+// 		if (personaCaptured) return
+// 		if (!courseCount.value) {
+// 			router.push({
+// 				name: 'PersonaForm',
+// 			})
+// 		}
+// 	}
+// }
 
 const getCourseCount = () => {
 	if (!user.data) return
@@ -178,7 +178,7 @@ const getCourseCount = () => {
 		doctype: 'LMS Course',
 	}).then((data) => {
 		courseCount.value = data
-		identifyUserPersona()
+		//identifyUserPersona()
 	})
 }
 

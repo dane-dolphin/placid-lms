@@ -1,5 +1,5 @@
 <template>
-	<div v-if="user.data?.is_moderator || isStudent" class="">
+	<div v-if="user.data?.is_moderator || user.data?.is_evaluator || isStudent" class="">
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
@@ -270,7 +270,7 @@ const tabs = computed(() => {
 		icon: Laptop,
 	})
 
-	if (user.data?.is_moderator) {
+	if (user.data?.is_moderator || user.data?.is_evaluator) {
 		batchTabs.push({
 			label: 'Assessments',
 			icon: BookOpenCheck,
