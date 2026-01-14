@@ -1,9 +1,5 @@
 <template>
-<<<<<<< HEAD
 	<div v-if="isAdmin || isStudent" class="">
-=======
-	<div v-if="user.data?.is_moderator || user.data?.is_evaluator || isStudent" class="">
->>>>>>> a831c627 (Add batch lesson locking and evaluator restrictions)
 		<header
 			class="sticky top-0 z-10 flex items-center justify-between border-b bg-surface-white px-3 py-2.5 sm:px-5"
 		>
@@ -285,11 +281,7 @@ const tabs = computed(() => {
 		icon: Laptop,
 	})
 
-<<<<<<< HEAD
 	if (isAdmin.value) {
-=======
-	if (user.data?.is_moderator || user.data?.is_evaluator) {
->>>>>>> a831c627 (Add batch lesson locking and evaluator restrictions)
 		batchTabs.push({
 			label: 'Assessments',
 			icon: BookOpenCheck,
