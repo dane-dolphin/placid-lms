@@ -43,6 +43,13 @@ export class Upload {
 		return this.wrapper
 	}
 
+	resolveUrl = (u) => {
+		if (!u) return u
+		if (/^https?:\/\//i.test(u)) return u
+		if (u.startsWith('//')) return window.location.protocol + u
+		return window.location.origin + u
+	}
+
 	renderFile(file) {
 		if (this.isVideo(file.file_type)) {
 			const app = createApp(VideoBlock, {
@@ -64,17 +71,15 @@ export class Upload {
 			})
 			app.mount(this.wrapper)
 			return
-		} else if (file.file_type == 'PDF') {
-			this.wrapper.innerHTML = `<iframe src="${
-				window.location.origin
-			}${encodeURI(
-				file.file_url
-			)}" width='100%' height='700px' class="mb-4" type="application/pdf"></iframe>`
+		} else if (file.file_type === 'PDF') {
+				const src = this.resolveUrl(file.file_url)
+				this.wrapper.innerHTML = `<iframe src="${encodeURI(
+				src
+			)}" width="100%" height="700px" class="mb-4" type="application/pdf"></iframe>`
 			return
 		} else {
-			this.wrapper.innerHTML = `<img class="mb-4" src=${encodeURI(
-				file.file_url
-			)} width='100%'>`
+			const src = this.resolveUrl(file.file_url)
+			this.wrapper.innerHTML = `<img class="mb-4" src="${encodeURI(src)}" width="100%">`
 			return
 		}
 	}
