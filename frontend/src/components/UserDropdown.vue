@@ -1,62 +1,79 @@
 <template>
-	<div class="p-2">
-		<Dropdown :options="userDropdownOptions">
-			<template v-slot="{ open }">
-				<button
-					class="flex h-12 py-2 items-center rounded-md duration-300 ease-in-out"
-					:class="
-						isCollapsed
-							? 'px-0 w-auto'
-							: open
-							? 'bg-surface-white shadow-sm px-2 w-52'
-							: 'hover:bg-surface-gray-3 px-2 w-52'
-					"
-				>
-					<img
-						v-if="branding.data?.banner_image"
-						:src="branding.data?.banner_image.file_url"
-						class="w-8 h-8 rounded flex-shrink-0"
-					/>
-					<LMSLogo v-else class="w-8 h-8 rounded flex-shrink-0" />
-					<div
-						class="flex flex-1 flex-col text-left duration-300 ease-in-out"
-						:class="
-							isCollapsed
-								? 'opacity-0 ml-0 w-0 overflow-hidden'
-								: 'opacity-100 ml-2 w-auto'
-						"
-					>
-						<div class="text-base font-medium text-ink-gray-9 leading-none">
-							<span
-								v-if="
-									branding.data?.app_name && branding.data?.app_name != 'Frappe'
-								"
-							>
-								{{ branding.data?.app_name }}
-							</span>
-							<span v-else> Learning </span>
-						</div>
-						<div
-							v-if="userResource.data"
-							class="mt-1 text-sm text-ink-gray-7 leading-none"
-						>
-							{{ convertToTitleCase(userResource.data?.full_name) }}
-						</div>
-					</div>
-					<div
-						class="duration-300 ease-in-out"
-						:class="
-							isCollapsed
-								? 'opacity-0 ml-0 w-0 overflow-hidden'
-								: 'opacity-100 ml-2 w-auto'
-						"
-					>
-						<ChevronDown class="h-4 w-4 text-ink-gray-7" />
-					</div>
-				</button>
-			</template>
-		</Dropdown>
-	</div>
+<!-- Top branding section -->
+<div
+  class="px-2 pt-2"
+  :class="isCollapsed ? 'flex flex-col items-center' : ''"
+>
+  <!-- Full-width image (only when not collapsed) -->
+  <div v-if="!isCollapsed" class="w-full items-center align-center">
+    <img
+      v-if="branding.data?.banner_image"
+      :src="branding.data?.banner_image.file_url"
+      class="w-full h-20 rounded-lg object-cover object-center"
+      alt="Branding"
+    />
+    <div
+      v-else
+      class="w-full h-20 rounded-lg bg-surface-gray-2 flex items-center justify-center"
+    >
+      <LMSLogo class="w-10 h-10" />
+    </div>
+
+    <!-- <div class="mt-2 px-2 text-xs uppercase tracking-wide text-ink-gray-6">
+      {{branding.data?.app_name}}
+    </div> -->
+  </div>
+
+  <!-- Collapsed state: show small icon only -->
+  <div v-else class="flex justify-center w-full">
+    <img
+      v-if="branding.data?.banner_image"
+      :src="branding.data?.banner_image.file_url"
+      class="w-10 h-10 rounded object-cover object-center"
+      alt="Branding"
+    />
+    <LMSLogo v-else class="w-10 h-10 rounded" />
+  </div>
+
+  <!-- User dropdown row -->
+  <Dropdown :options="userDropdownOptions">
+    <template v-slot="{ open }">
+      <button
+        class="mt-1 flex items-center rounded-md duration-300 ease-in-out"
+        :class="
+          isCollapsed
+            ? 'w-12 h-12 justify-center'
+            : open
+            ? 'bg-surface-white shadow-sm px-2 py-2 w-full'
+            : 'hover:bg-surface-gray-3 px-2 py-2 w-full'
+        "
+      >
+        <!-- User name + role -->
+        <div
+          class="flex flex-1 flex-col text-left"
+          :class="isCollapsed ? 'hidden' : ''"
+        >
+          <div class="text-sm font-semibold text-ink-gray-9 leading-tight">
+            {{ convertToTitleCase(userResource.data?.full_name) }}
+          </div>
+          <div class="text-xs text-ink-gray-6 leading-tight truncate">
+			{{ roleLabel }}
+          </div>
+        </div>
+
+        <!-- Chevron -->
+        <div :class="isCollapsed ? 'hidden' : ''">
+          <ChevronDown class="h-4 w-4 text-ink-gray-7" />
+        </div>
+
+        <!-- Collapsed: show a generic user dot/icon or initials -->
+        <div v-if="isCollapsed" class="text-xs font-semibold text-ink-gray-7">
+          {{ (userResource.data?.full_name || 'U').slice(0, 1).toUpperCase() }}
+        </div>
+      </button>
+    </template>
+  </Dropdown>
+</div>
 	<SettingsModal
 		v-if="userResource.data?.is_moderator"
 		v-model="showSettingsModal"
@@ -117,6 +134,17 @@ watch(
 		showSettingsModal.value = value
 	}
 )
+
+const roleLabel = computed(() => {
+  if (!userResource.data) return 'Guest | Not logged in'
+
+  if (userResource.data.is_system_manager) return 'Logged in as an Administrator'
+  if (userResource.data.is_instructor) return 'Logged in as a Course Creator'
+  if (userResource.data.is_batch_evaluator) return 'Logged in as a Facilitator'
+  if (userResource.data.is_student) return 'Logged in as a Student'
+
+  return 'This role is Unintended.'
+})
 
 const toggleTheme = () => {
 	const currentTheme = document.documentElement.getAttribute('data-theme')

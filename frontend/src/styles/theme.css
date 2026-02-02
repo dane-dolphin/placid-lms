@@ -1,0 +1,149 @@
+/* =========================================
+   Placid Academy Theme Tokens (Light/Dark)
+   Drop-in theme.css
+   ========================================= */
+
+/* ---------- LIGHT MODE TOKENS ---------- */
+/* Covers: explicit light + default when not dark */
+html[data-theme="light"],
+body[data-theme="light"],
+html:not([data-theme="dark"]),
+body:not([data-theme="dark"]) {
+  --pa-bg: #f9fafb;
+  --pa-bg-2: #ffffff;
+
+  --pa-surface: #ffffff;
+  --pa-surface-2: #f3f4f6;
+
+  --pa-border: rgba(0, 0, 0, 0.10);
+
+  --pa-text: #111827;        /* main text */
+  --pa-text-muted: #374151;  /* secondary */
+  --pa-text-dim: #6b7280;    /* subtle */
+
+  --pa-accent: #f4c84c;      /* yellow */
+  --pa-accent-2: #2e8c78;    /* green */
+
+  --pa-shadow: 0 20px 40px rgba(0,0,0,0.08);
+  --pa-shadow-soft: 0 12px 24px rgba(0,0,0,0.06);
+
+  --pa-ring: 0 0 0 3px rgba(244,200,76,0.35);
+}
+
+/* ---------- DARK MODE TOKENS ---------- */
+/* Covers: explicit dark + possible .dark class */
+html[data-theme="dark"],
+body[data-theme="dark"],
+html.dark,
+body.dark {
+  --pa-bg: #0f1f14;
+  --pa-bg-2: #0b1510;
+
+  --pa-surface: rgba(255,255,255,0.06);
+  --pa-surface-2: rgba(255,255,255,0.10);
+
+  --pa-border: rgba(255,255,255,0.12);
+
+  --pa-text: rgba(255,255,255,0.92);
+  --pa-text-muted: rgba(255,255,255,0.72);
+  --pa-text-dim: rgba(255,255,255,0.55);
+
+  --pa-accent: #f4c84c;
+  --pa-accent-2: #2e8c78;
+
+  --pa-shadow: 0 24px 60px rgba(0,0,0,0.45);
+  --pa-shadow-soft: 0 18px 40px rgba(0,0,0,0.30);
+
+  --pa-ring: 0 0 0 3px rgba(244,200,76,0.22);
+}
+
+/* =========================================
+   Base application of tokens
+   (safe, minimal, won’t break layout)
+   ========================================= */
+
+html, body {
+  background: var(--pa-bg);
+  color: var(--pa-text);
+}
+
+/* Links (don’t force everything) */
+a {
+  color: inherit;
+}
+a:hover {
+  color: var(--pa-accent-2);
+}
+
+/* Generic “card/surface” feel for common wrappers */
+.card,
+.page-card,
+.section-box,
+.surface,
+[data-surface="true"] {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-border);
+  box-shadow: var(--pa-shadow-soft);
+  border-radius: 14px;
+}
+
+/* Inputs */
+input,
+select,
+textarea {
+  background: var(--pa-surface);
+  color: var(--pa-text);
+  border: 1px solid var(--pa-border);
+  border-radius: 10px;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: var(--pa-ring);
+  border-color: color-mix(in srgb, var(--pa-accent) 70%, transparent);
+}
+
+/* Primary button accent */
+.btn-primary,
+button.btn-primary,
+.button-primary {
+  background: var(--pa-accent) !important;
+  border: none !important;
+  color: #1f2937 !important;
+  font-weight: 700;
+  border-radius: 999px;
+}
+
+/* Secondary-ish button */
+.btn-secondary,
+.button-secondary {
+  background: var(--pa-surface-2);
+  border: 1px solid var(--pa-border);
+  color: var(--pa-text);
+  border-radius: 999px;
+}
+
+/* Subtle text helpers (optional) */
+.text-muted { color: var(--pa-text-muted) !important; }
+.text-dim   { color: var(--pa-text-dim) !important; }
+
+/* =========================================
+   Dark-mode only background flair
+   (prevents light mode looking weird)
+   ========================================= */
+html[data-theme="dark"] body,
+html.dark body {
+  background-image:
+    radial-gradient(1200px 700px at 20% 10%, rgba(46,140,120,0.18), rgba(0,0,0,0) 55%),
+    radial-gradient(900px 600px at 85% 15%, rgba(244,200,76,0.10), rgba(0,0,0,0) 60%),
+    linear-gradient(to bottom, rgba(10,12,12,0.92), rgba(10,12,12,0.92));
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+}
+
+html[data-theme="light"] body,
+html:not([data-theme="dark"]) body {
+  color: var(--pa-text) !important;
+}
