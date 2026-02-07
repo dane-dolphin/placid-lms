@@ -320,7 +320,7 @@ const addQuizzes = () => {
 
 	sidebarLinks.value.splice(4, 0, {
 		label: 'Quizzes',
-		icon: 'CircleHelp',
+		icon: 'ClipboardPen',
 		to: 'Quizzes',
 		activeFor: ['Quizzes', 'QuizForm', 'QuizSubmissionList', 'QuizSubmission'],
 	})

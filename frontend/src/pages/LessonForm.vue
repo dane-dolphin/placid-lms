@@ -57,6 +57,24 @@
 						</div>
 					</div>
 					<div class="border-t mt-4">
+						<div
+							v-if="isUploading"
+							class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/30"
+						>
+							<div class="rounded-lg bg-white px-5 py-4 shadow space-y-2 w-[320px]">
+								<div class="font-medium text-ink-gray-9">Uploading…</div>
+								<div class="text-sm text-ink-gray-6 truncate">{{ uploadFilename }}</div>
+
+								<div class="h-2 w-full bg-gray-200 rounded">
+								<div
+									class="h-2 bg-gray-900 rounded"
+									:style="{ width: `${uploadPct}%` }"
+								></div>
+								</div>
+
+								<div class="text-xs text-ink-gray-6 text-right">{{ uploadPct }}%</div>
+							</div>
+						</div>
 						<div class="w-5/6 mx-auto pt-4">
 							<label class="block font-medium text-ink-gray-5 mb-1">
 								{{ __('Content') }}
@@ -108,6 +126,10 @@ const instructorEditor = ref(null)
 const user = inject('$user')
 const openInstructorEditor = ref(false)
 const { updateOnboardingStep } = useOnboarding('learning')
+const isUploading = ref(false)
+const uploadPct = ref(0)
+const uploadFilename = ref('')
+
 let autoSaveInterval
 let showSuccessMessage = false
 
@@ -139,14 +161,27 @@ onMounted(() => {
 })
 
 const renderEditor = (holder) => {
-	return new EditorJS({
-		holder: holder,
-		tools: getEditorTools(true),
-		defaultBlock: 'markdown',
-		onChange: async (api, event) => {
-			enablePlyr()
-		},
-	})
+  return new EditorJS({
+    holder,
+    tools: getEditorTools(true, {
+      onUploadStart: (file) => {
+        isUploading.value = true
+        uploadPct.value = 0
+        uploadFilename.value = file?.name || ''
+      },
+      onUploadProgress: (pct) => {
+        uploadPct.value = pct
+      },
+      onUploadEnd: () => {
+        isUploading.value = false
+        uploadFilename.value = ''
+      },
+    }),
+    defaultBlock: 'markdown',
+    onChange: async () => {
+      enablePlyr()
+    },
+  })
 }
 
 const lesson = reactive({

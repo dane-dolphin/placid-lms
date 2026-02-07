@@ -69,10 +69,19 @@
 					<div class="md:hidden my-4">
 						<CourseCardOverlay :course="course" />
 					</div>
-					<div
-						v-html="course.data.description"
-						class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2 prose-td:border prose-th:border prose-td:border-outline-gray-2 prose-th:border-outline-gray-2 prose-td:relative prose-th:relative prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal mt-10"
-					></div>
+						<div class="font-semibold mt-8 text-lg leading-5 text-ink-gray-9">
+							{{ __('Course Description') }}
+						</div>
+					<div class="mt-4 border-2 rounded-md">
+						<div
+							v-html="course.data.description"
+							class="ProseMirror prose prose-table:table-fixed prose-td:p-2 prose-th:p-2
+								prose-td:border prose-th:border prose-td:border-outline-gray-2
+								prose-th:border-outline-gray-2 prose-td:relative prose-th:relative
+								prose-th:bg-surface-gray-2 prose-sm max-w-none !whitespace-normal
+								px-3 py-3"
+						/>
+					</div>
 					<div class="mt-10">
 						<CourseOutline
 							:title="__('Course Outline')"

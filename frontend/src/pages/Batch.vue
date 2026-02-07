@@ -72,12 +72,12 @@
 							<div v-else-if="tab.label == 'Students'">
 								<BatchStudents :batch="batch" />
 							</div>
-							<div v-else-if="tab.label == 'Classes'">
+							<!-- <div v-else-if="tab.label == 'Classes'">
 								<LiveClass
 									:batch="batch.data.name"
 									:zoomAccount="batch.data.zoom_account"
 								/>
-							</div>
+							</div> -->
 							<div v-else-if="tab.label == 'Assessments'">
 								<Assessments :batch="batch.data.name" />
 							</div>
@@ -93,6 +93,12 @@
 									:singleThread="true"
 									:scrollToBottom="false"
 								/>
+							</div>
+							<div v-else-if="tab.label == 'Course-Locks' && isAdmin">
+								<BatchCourseLocks :batch="batch.data" />
+							</div>
+							<div v-else-if="tab.label == 'Quiz-Submissions' && isAdmin">
+								<BatchQuizSubmissions :batch="batch.data" />
 							</div>
 						</div>
 					</template>
@@ -247,6 +253,9 @@ import DateRange from '@/components/Common/DateRange.vue'
 import BulkCertificates from '@/components/Modals/BulkCertificates.vue'
 import BatchFeedback from '@/components/BatchFeedback.vue'
 import dayjs from 'dayjs/esm'
+import BatchCourseLocks from '@/components/BatchCourseLocks.vue'
+import BatchQuizSubmissions from '@/components/BatchQuizSubmissions.vue'
+import { Lock } from 'lucide-vue-next'
 
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
@@ -276,10 +285,10 @@ const tabs = computed(() => {
 		icon: BookOpen,
 	})
 
-	batchTabs.push({
-		label: 'Classes',
-		icon: Laptop,
-	})
+	// batchTabs.push({
+	// 	label: 'Classes',
+	// 	icon: Laptop,
+	// })
 
 	if (isAdmin.value) {
 		batchTabs.push({
@@ -297,6 +306,21 @@ const tabs = computed(() => {
 		label: 'Discussions',
 		icon: MessageCircle,
 	})
+
+	if (isAdmin.value) {
+		batchTabs.push({
+			label: 'Course-Locks',
+			icon: Lock,
+		})
+	}
+
+	if (isAdmin.value) {
+		batchTabs.push({
+			label: 'Quiz-Submissions',
+			icon: ClipboardPen,
+		})
+	}
+
 	return batchTabs
 })
 

@@ -110,7 +110,9 @@ export function htmlToText(html) {
 	return div.textContent || div.innerText || ''
 }
 
-export function getEditorTools() {
+export function getEditorTools(editable = false, opts = {}) {
+  	const { onUploadStart, onUploadProgress, onUploadEnd } = opts
+	
 	return {
 		header: {
 			class: Header,
@@ -132,7 +134,15 @@ export function getEditorTools() {
 		quiz: Quiz,
 		assignment: Assignment,
 		program: Program,
-		upload: Upload,
+		upload: {
+			class: Upload,
+			config: {
+				editable,
+				onUploadStart,
+				onUploadProgress,
+				onUploadEnd,
+			},
+		},
 		markdown: {
 			class: Markdown,
 			inlineToolbar: true,

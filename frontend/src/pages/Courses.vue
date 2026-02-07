@@ -49,12 +49,12 @@
 					</div>
 				</div>
 
-				<FormControl
+				<!-- <FormControl
 					v-model="certification"
 					:label="__('Certification')"
 					type="checkbox"
 					@change="updateCourses()"
-				/>
+				/> -->
 			</div>
 		</div>
 		<div
@@ -107,7 +107,12 @@ const currentCategory = ref(null)
 const title = ref('')
 const certification = ref(false)
 const filters = ref({})
-const currentTab = ref('Live')
+const is_student = computed(() => user.data?.is_student)
+const is_staff = computed(
+  () => user.data?.is_moderator || user.data?.is_instructor || user.data?.is_evaluator
+)
+
+const currentTab = ref(is_student.value ? 'Enrolled' : 'Published')
 const { brand } = sessionStore()
 const courseCount = ref(0)
 
@@ -195,7 +200,7 @@ const updateFilters = () => {
 	updateTitleFilter()
 	updateCertificationFilter()
 	updateTabFilter()
-	updateStudentFilter()
+	// updateStudentFilter()
 	setQueryParams()
 }
 
@@ -224,42 +229,45 @@ const updateCertificationFilter = () => {
 }
 
 const updateTabFilter = () => {
-	delete filters.value['live']
-	delete filters.value['created']
-	delete filters.value['published_on']
-	delete filters.value['upcoming']
+  // remove old concepts
+  delete filters.value['live']
+  delete filters.value['created']
+  delete filters.value['published_on']
+  delete filters.value['upcoming']
 
-	if (currentTab.value == 'Enrolled' && user.data?.is_student) {
-		filters.value['enrolled'] = 1
-		delete filters.value['published']
-	} else {
-		delete filters.value['published']
-		delete filters.value['enrolled']
+  // clear relevant filters first
+  delete filters.value['enrolled']
+  delete filters.value['published']
 
-		if (currentTab.value == 'Live') {
-			filters.value['published'] = 1
-			filters.value['upcoming'] = 0
-			filters.value['live'] = 1
-		} else if (currentTab.value == 'Upcoming') {
-			filters.value['upcoming'] = 1
-		} else if (currentTab.value == 'New') {
-			filters.value['published'] = 1
-			filters.value['published_on'] = [
-				'>=',
-				dayjs().add(-3, 'month').format('YYYY-MM-DD'),
-			]
-		} else if (currentTab.value == 'Created') {
-			filters.value['created'] = 1
-		} else if (currentTab.value == 'Unpublished') {
-			filters.value['published'] = 0
-		}
-	}
+  if (!user.data) {
+    // guests: published only
+    filters.value['published'] = 1
+    return
+  }
+
+  // STUDENT
+  if (is_student.value) {
+    // students never see unpublished
+    filters.value['published'] = 1
+
+    if (currentTab.value === 'Enrolled') {
+      filters.value['enrolled'] = 1
+    }
+    // "All" means published catalog
+    return
+  }
+
+  // STAFF
+  if (currentTab.value === 'Published') {
+    filters.value['published'] = 1
+  } else if (currentTab.value === 'Unpublished') {
+    filters.value['published'] = 0
+  }
+  // "All" = no published filter
 }
 
 const updateStudentFilter = () => {
-	if (!user.data || (user.data?.is_student && currentTab.value != 'Enrolled')) {
-		filters.value['published'] = 1
-	}
+  // Do nothing now — tab logic fully controls it
 }
 
 const setQueryParams = () => {
@@ -304,28 +312,14 @@ watch(currentTab, () => {
 })
 
 const courseTabs = computed(() => {
-	let tabs = [
-		{
-			label: __('Live'),
-		},
-		{
-			label: __('New'),
-		},
-		{
-			label: __('Upcoming'),
-		},
-	]
-	if (
-		user.data?.is_moderator ||
-		user.data?.is_instructor ||
-		user.data?.is_evaluator
-	) {
-		tabs.push({ label: __('Created') })
-		tabs.push({ label: __('Unpublished') })
-	} else if (user.data) {
-		tabs.push({ label: __('Enrolled') })
-	}
-	return tabs
+  if (!user.data) return [{ label: __('Published') }]
+
+  if (is_student.value) {
+    return [{ label: __('Published') }, { label: __('Enrolled') }]
+  }
+
+  // staff
+  return [{ label: __('All') }, { label: __('Published') }, { label: __('Unpublished') }]
 })
 
 const breadcrumbs = computed(() => [

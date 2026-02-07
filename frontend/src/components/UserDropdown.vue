@@ -140,7 +140,7 @@ const roleLabel = computed(() => {
 
   if (userResource.data.is_system_manager) return 'Logged in as an Administrator'
   if (userResource.data.is_instructor) return 'Logged in as a Course Creator'
-  if (userResource.data.is_batch_evaluator) return 'Logged in as a Facilitator'
+  if (userResource.data.is_evaluator) return 'Logged in as a Facilitator'
   if (userResource.data.is_student) return 'Logged in as a Student'
 
   return 'This role is Unintended.'

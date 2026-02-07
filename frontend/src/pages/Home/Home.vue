@@ -12,6 +12,7 @@
 				</div>
 				<div>
 					<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
+					<div v-else-if="isEvaluatorOnly"></div>
 					<div
 						v-else
 						@click="showStreakModal = true"
@@ -30,17 +31,19 @@
 			</div>
 		</div>
 
+		
 		<AdminHome
 			v-if="isAdmin && currentTab === 'instructor'"
 			:liveClasses="adminLiveClasses"
 			:evals="adminEvals"
 		/>
+		<FacilitatorHome v-if="isEvaluatorOnly" />
 		<StudentHome v-else :myLiveClasses="myLiveClasses" />
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
 </template>
 <script setup lang="ts">
-import { computed, inject, onMounted, ref } from 'vue'
+import { computed, inject, onMounted, ref, watch } from 'vue'
 import {
 	Breadcrumbs,
 	call,
@@ -52,6 +55,7 @@ import { sessionStore } from '@/stores/session'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
 import Streak from '@/pages/Home/Streak.vue'
+import FacilitatorHome from './FacilitatorHome.vue'
 
 const user = inject<any>('$user')
 const { brand } = sessionStore()
@@ -68,10 +72,32 @@ onMounted(() => {
 const isAdmin = computed(() => {
 	return (
 		user.data?.is_moderator ||
-		user.data?.is_instructor ||
-		user.data?.is_evaluator
+		user.data?.is_instructor 
 	)
 })
+
+const isEvaluatorOnly = computed(() => {
+  if (!user.data) return false
+  const isStaff = user.data.is_moderator || user.data.is_instructor
+  return user.data.is_evaluator && !isStaff
+})
+
+const evaluatorDashboard = createResource({
+  url: 'placid_drip.api.evaluator_dashboard.get_evaluator_dashboard',
+  auto: false,
+})
+
+onMounted(() => {
+  if (isEvaluatorOnly.value) evaluatorDashboard.reload()
+})
+
+watch(
+  () => isEvaluatorOnly.value,
+  (v) => {
+    if (v) evaluatorDashboard.reload()
+  },
+  { immediate: true }
+)
 
 const myLiveClasses = createResource({
 	url: 'lms.lms.utils.get_my_live_classes',
@@ -118,7 +144,9 @@ const subtitle = computed(() => {
 			)
 		}
 		return __('Manage your courses and batches at a glance')
-	} else {
+	} else if (isEvaluatorOnly.value) { 
+		return __('Manage your courses and batches at a glance')
+ 	} else {
 		let liveClassSuffix =
 			myLiveClasses.data?.length > 1 ? __('live classes') : __('live class')
 		let evalSuffix = evalCount.value > 1 ? __('evaluations') : __('evaluation')
