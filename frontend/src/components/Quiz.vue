@@ -130,7 +130,7 @@
 							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
 						>
 							<input
-								v-if="!showAnswers.length && !questionDetails.data.multiple"
+								v-if="!questionDetails.data.multiple"
 								type="radio"
 								:name="encodeURIComponent(questionDetails.data.question)"
 								class="w-3.5 h-3.5 text-ink-gray-9 focus:ring-outline-gray-modals"
@@ -138,65 +138,25 @@
 							/>
 
 							<input
-								v-else-if="!showAnswers.length && questionDetails.data.multiple"
+								v-else
 								type="checkbox"
 								:name="encodeURIComponent(questionDetails.data.question)"
 								class="w-3.5 h-3.5 text-ink-gray-9 rounded-sm focus:ring-outline-gray-modals"
 								@change="markAnswer(index)"
 							/>
-							<div
-								v-else-if="quiz.data.show_answers"
-								v-for="(answer, idx) in showAnswers"
-							>
-								<div v-if="index - 1 == idx">
-									<CheckCircle
-										v-if="answer == 1"
-										class="w-4 h-4 text-ink-green-2"
-									/>
-									<MinusCircle
-										v-else-if="answer == 2"
-										class="w-4 h-4 text-ink-green-2"
-									/>
-									<XCircle
-										v-else-if="answer == 0"
-										class="w-4 h-4 text-ink-red-3"
-									/>
-									<MinusCircle v-else class="w-4 h-4" />
-								</div>
-							</div>
 							<span
 								class="ml-2 text-ink-gray-9"
 								v-html="questionDetails.data[`option_${index}`]"
 							>
 							</span>
 						</label>
-						<div
-							v-if="questionDetails.data[`explanation_${index}`]"
-							class="mt-2 text-xs text-ink-gray-7"
-							v-show="showAnswers.length"
-						>
-							{{ questionDetails.data[`explanation_${index}`] }}
-						</div>
 					</div>
 					<div v-else-if="questionDetails.data.type == 'User Input'">
 						<FormControl
 							v-model="possibleAnswer"
 							type="textarea"
-							:disabled="showAnswers.length ? true : false"
 							class="my-2"
 						/>
-						<div v-if="showAnswers.length">
-							<Badge v-if="showAnswers[0]" :label="__('Correct')" theme="green">
-								<template #prefix>
-									<CheckCircle class="w-4 h-4 text-ink-green-2 mr-1" />
-								</template>
-							</Badge>
-							<Badge v-else theme="red" :label="__('Incorrect')">
-								<template #prefix>
-									<XCircle class="w-4 h-4 text-ink-red-3 mr-1" />
-								</template>
-							</Badge>
-						</div>
 					</div>
 					<div v-else>
 						<TextEditor
@@ -218,19 +178,7 @@
 							}}
 						</div>
 						<Button
-							v-if="
-								quiz.data.show_answers &&
-								!showAnswers.length &&
-								questionDetails.data.type != 'Open Ended'
-							"
-							@click="checkAnswer()"
-						>
-							<span>
-								{{ __('Check') }}
-							</span>
-						</Button>
-						<Button
-							v-else-if="activeQuestion != questions.length"
+							v-if="activeQuestion != questions.length"
 							@click="nextQuestion()"
 						>
 							<span>
@@ -246,47 +194,89 @@
 				</div>
 			</div>
 		</div>
-		<div v-else class="border rounded-md p-20 text-center space-y-2">
-			<div class="text-lg font-semibold text-ink-gray-9">
-				{{ __('Quiz Summary') }}
+		<div v-else class="border rounded-md p-5 space-y-4">
+			<div class="text-center space-y-2">
+				<div class="text-lg font-semibold text-ink-gray-9">
+					{{ __('Quiz Summary') }}
+				</div>
+				<div
+					v-if="quizSubmission.data.is_open_ended"
+					class="leading-5 text-ink-gray-7"
+				>
+					{{
+						__(
+							"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
+						)
+					}}
+				</div>
+				<div v-else class="text-ink-gray-7">
+					{{
+						__(
+							'You got {0}% correct answers with a score of {1} out of {2}'
+						).format(
+							Math.ceil(quizSubmission.data.percentage),
+							quizSubmission.data.score,
+							quizSubmission.data.score_out_of
+						)
+					}}
+				</div>
+				<div class="space-x-2">
+					<Button
+						@click="resetQuiz()"
+						class="mt-2"
+						v-if="
+							!quiz.data.max_attempts ||
+							attempts?.data.length < quiz.data.max_attempts
+						"
+					>
+						<span>
+							{{ __('Try Again') }}
+						</span>
+					</Button>
+					<Button v-if="inVideo" @click="props.backToVideo()">
+						{{ __('Resume Video') }}
+					</Button>
+				</div>
 			</div>
 			<div
-				v-if="quizSubmission.data.is_open_ended"
-				class="leading-5 text-ink-gray-7"
+				v-if="quiz.data.show_answers && quizSubmission.data.result && !quizSubmission.data.is_open_ended"
+				class="mt-4 space-y-4"
 			>
-				{{
-					__(
-						"Your submission has been successfully saved. The instructor will review and grade it shortly, and you'll be notified of your final result."
-					)
-				}}
-			</div>
-			<div v-else class="text-ink-gray-7">
-				{{
-					__(
-						'You got {0}% correct answers with a score of {1} out of {2}'
-					).format(
-						Math.ceil(quizSubmission.data.percentage),
-						quizSubmission.data.score,
-						quizSubmission.data.score_out_of
-					)
-				}}
-			</div>
-			<div class="space-x-2">
-				<Button
-					@click="resetQuiz()"
-					class="mt-2"
-					v-if="
-						!quiz.data.max_attempts ||
-						attempts?.data.length < quiz.data.max_attempts
-					"
+				<div class="text-md font-semibold text-ink-gray-9">
+					{{ __('Answer Review') }}
+				</div>
+				<div
+					v-for="(result, ridx) in quizSubmission.data.result"
+					:key="ridx"
+					class="border rounded-md p-4"
 				>
-					<span>
-						{{ __('Try Again') }}
-					</span>
-				</Button>
-				<Button v-if="inVideo" @click="props.backToVideo()">
-					{{ __('Resume Video') }}
-				</Button>
+					<div class="flex justify-between items-start">
+						<div class="text-sm text-ink-gray-5">
+							{{ __('Question {0}').format(ridx + 1) }}
+						</div>
+						<div class="flex items-center space-x-1">
+							<CheckCircle
+								v-if="result.is_correct"
+								class="w-4 h-4 text-ink-green-2"
+							/>
+							<XCircle
+								v-else
+								class="w-4 h-4 text-ink-red-3"
+							/>
+							<span class="text-sm font-semibold text-ink-gray-9">
+								{{ result.marks }} / {{ result.marks_out_of }}
+							</span>
+						</div>
+					</div>
+					<div
+						class="text-ink-gray-9 font-semibold mt-1 leading-5"
+						v-html="result.question"
+					></div>
+					<div class="mt-2 text-sm text-ink-gray-7">
+						<span class="font-medium">{{ __('Your answer') }}:</span>
+						{{ result.answer || __('No answer') }}
+					</div>
+				</div>
 			</div>
 		</div>
 		<div
@@ -313,7 +303,6 @@
 </template>
 <script setup>
 import {
-	Badge,
 	Button,
 	call,
 	createResource,
@@ -323,16 +312,14 @@ import {
 	toast,
 } from 'frappe-ui'
 import { ref, watch, reactive, inject, computed } from 'vue'
-import { CheckCircle, XCircle, MinusCircle } from 'lucide-vue-next'
+import { CheckCircle, XCircle } from 'lucide-vue-next'
 import { timeAgo } from '@/utils'
-import { useRouter } from 'vue-router'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const user = inject('$user')
 const activeQuestion = ref(0)
 const currentQuestion = ref('')
 const selectedOptions = reactive([0, 0, 0, 0])
-const showAnswers = reactive([])
 let questions = reactive([])
 const possibleAnswer = ref(null)
 const timer = ref(0)
@@ -527,52 +514,11 @@ const getAnswers = () => {
 	return answers
 }
 
-const checkAnswer = () => {
-	let answers = getAnswers()
-	if (!answers.length) {
-		toast.warning(__('Please select an option'))
-		return
-	}
-
-	createResource({
-		url: 'lms.lms.doctype.lms_quiz.lms_quiz.check_answer',
-		params: {
-			question: currentQuestion.value,
-			type: questionDetails.data.type,
-			answers: JSON.stringify(answers),
-		},
-		auto: true,
-		onSuccess(data) {
-			let type = questionDetails.data.type
-			if (type == 'Choices') {
-				selectedOptions.forEach((option, index) => {
-					if (option) {
-						showAnswers[index] = option && data[index]
-					} else if (data[index] == 2) {
-						showAnswers[index] = 2
-					} else {
-						showAnswers[index] = undefined
-					}
-				})
-			} else {
-				showAnswers.push(data)
-			}
-			addToLocalStorage()
-			if (!quiz.data.show_answers) {
-				resetQuestion()
-			}
-		},
-	})
-}
-
 const addToLocalStorage = () => {
 	let quizData = JSON.parse(localStorage.getItem(quiz.data.title))
 	let questionData = {
 		question_name: currentQuestion.value,
 		answer: getAnswers().join(),
-		is_correct: showAnswers.filter((answer) => {
-			return answer != undefined
-		}),
 	}
 
 	if (quizData) {
@@ -589,31 +535,19 @@ const addToLocalStorage = () => {
 }
 
 const nextQuestion = () => {
-	if (!quiz.data.show_answers && questionDetails.data?.type != 'Open Ended') {
-		checkAnswer()
-	} else {
-		if (questionDetails.data?.type == 'Open Ended') addToLocalStorage()
-		resetQuestion()
-	}
+	addToLocalStorage()
+	resetQuestion()
 }
 
 const resetQuestion = () => {
 	if (activeQuestion.value == quiz.data.questions.length) return
 	activeQuestion.value = activeQuestion.value + 1
 	selectedOptions.splice(0, selectedOptions.length, ...[0, 0, 0, 0])
-	showAnswers.length = 0
 	possibleAnswer.value = null
 }
 
 const submitQuiz = () => {
-	if (!quiz.data.show_answers) {
-		if (questionDetails.data.type == 'Open Ended') addToLocalStorage()
-		else checkAnswer()
-		setTimeout(() => {
-			createSubmission()
-		}, 500)
-		return
-	}
+	addToLocalStorage()
 	createSubmission()
 }
 
@@ -643,7 +577,6 @@ const createSubmission = () => {
 const resetQuiz = () => {
 	activeQuestion.value = 0
 	selectedOptions.splice(0, selectedOptions.length, ...[0, 0, 0, 0])
-	showAnswers.length = 0
 	quizSubmission.reset()
 	populateQuestions()
 	setupTimer()

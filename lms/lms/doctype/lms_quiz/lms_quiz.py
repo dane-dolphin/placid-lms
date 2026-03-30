@@ -135,6 +135,7 @@ def quiz_summary(quiz, results):
 		"pass": percentage == quiz_details.passing_percentage,
 		"percentage": percentage,
 		"is_open_ended": is_open_ended,
+		"result": results,
 	}
 
 
@@ -155,13 +156,15 @@ def process_results(results, quiz_details):
 		result["marks_out_of"] = question_details.marks
 
 		if question_details.type != "Open Ended":
-			if len(result["is_correct"]) > 0:
-				correct = result["is_correct"][0]
-				for point in result["is_correct"]:
-					correct = correct and point
-				result["is_correct"] = correct
+			answers = result.get("answer", "")
+			answers = [a.strip() for a in answers.split(",")] if answers else []
+
+			if question_details.type == "Choices":
+				correct = _check_choices_correct(result["question_name"], answers)
 			else:
-				result["is_correct"] = 0
+				correct = bool(check_input_answers(result["question_name"], answers[0] if answers else ""))
+
+			result["is_correct"] = 1 if correct else 0
 
 			if correct:
 				marks = question_details.marks
@@ -275,6 +278,24 @@ def check_answer(question, type, answers):
 		return check_choice_answers(question, answers)
 	else:
 		return check_input_answers(question, answers[0])
+
+
+def _check_choices_correct(question, answers):
+	"""Check if user's answers exactly match the correct options."""
+	fields = []
+	for num in range(1, 5):
+		fields.append(f"option_{cstr(num)}")
+		fields.append(f"is_correct_{cstr(num)}")
+
+	question_details = frappe.db.get_value("LMS Question", question, fields, as_dict=1)
+
+	correct_options = set()
+	for num in range(1, 5):
+		if question_details.get(f"is_correct_{num}") and question_details.get(f"option_{num}"):
+			correct_options.add(question_details[f"option_{num}"])
+
+	user_answers = set(answers) if answers else set()
+	return user_answers == correct_options
 
 
 def check_choice_answers(question, answers):
