@@ -11,6 +11,9 @@ from frappe import _
 from frappe.model.document import Document
 from frappe.utils import add_days, cint, format_datetime, get_time, nowdate
 
+from lms.lms.doctype.lms_batch_enrollment.lms_batch_enrollment import (
+	enroll_members_in_batch_courses,
+)
 from lms.lms.utils import (
 	generate_slug,
 	get_assignment_details,
@@ -30,9 +33,11 @@ class LMSBatch(Document):
 		self.validate_payments_app()
 		self.validate_amount_and_currency()
 		self.validate_duplicate_assessments()
-		self.validate_membership()
 		self.validate_timetable()
 		self.validate_evaluation_end_date()
+
+	def on_update(self):
+		self.enroll_members_in_courses()
 
 	def autoname(self):
 		if not self.name:
@@ -82,15 +87,11 @@ class LMSBatch(Document):
 		if self.evaluation_end_date and self.evaluation_end_date < self.end_date:
 			frappe.throw(_("Evaluation end date cannot be less than the batch end date."))
 
-	def validate_membership(self):
+	def enroll_members_in_courses(self):
+		"""Backfill course enrollments when courses are added to a batch that already
+		has students. Runs in on_update so the child rows are persisted first."""
 		members = frappe.get_all("LMS Batch Enrollment", {"batch": self.name}, pluck="member")
-		for course in self.courses:
-			for member in members:
-				if not frappe.db.exists("LMS Enrollment", {"course": course.course, "member": member}):
-					enrollment = frappe.new_doc("LMS Enrollment")
-					enrollment.course = course.course
-					enrollment.member = member
-					enrollment.save()
+		enroll_members_in_batch_courses(self.name, members)
 
 	def validate_seats_left(self):
 		if cint(self.seat_count) < 0:

@@ -11,6 +11,9 @@
         <div class="flex items-center justify-between mb-3">
           <span class="font-semibold text-lg text-ink-gray-9">
             {{ __('My Batches') }}
+            <span v-if="batches.length" class="text-ink-gray-5 font-normal">
+              ({{ batches.length }})
+            </span>
           </span>
 
           <router-link
@@ -22,9 +25,9 @@
           </router-link>
         </div>
 
-        <div v-if="batchesPreview.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div v-if="batches.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <router-link
-            v-for="b in batchesPreview"
+            v-for="b in batches"
             :key="b.name"
             :to="{ name: 'BatchDetail', params: { batchName: b.name } }"
           >
@@ -48,6 +51,9 @@
         <div class="flex items-center justify-between mb-3">
           <span class="font-semibold text-lg text-ink-gray-9">
             {{ __('Facilitated Courses') }}
+            <span v-if="courses.length" class="text-ink-gray-5 font-normal">
+              ({{ courses.length }})
+            </span>
           </span>
 
           <router-link
@@ -59,9 +65,9 @@
           </router-link>
         </div>
 
-        <div v-if="coursesPreview.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div v-if="courses.length" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           <router-link
-            v-for="c in coursesPreview"
+            v-for="c in courses"
             :key="c.name"
             :to="{ name: 'CourseDetail', params: { courseName: c.name } }"
             class="block"
@@ -97,6 +103,7 @@ type DashboardBatch = {
   description?: string
   start_date?: string
   end_date?: string
+  courses?: { name: string; title?: string }[]
 }
 
 type DashboardCourse = {
@@ -112,7 +119,4 @@ const dashboard = createResource({
 
 const batches = computed<DashboardBatch[]>(() => (dashboard.data?.batches || []) as DashboardBatch[])
 const courses = computed<DashboardCourse[]>(() => (dashboard.data?.courses || []) as DashboardCourse[])
-
-const batchesPreview = computed(() => batches.value.slice(0, 4))
-const coursesPreview = computed(() => courses.value.slice(0, 4))
 </script>

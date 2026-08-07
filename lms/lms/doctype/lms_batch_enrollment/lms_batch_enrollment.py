@@ -13,10 +13,10 @@ class LMSBatchEnrollment(Document):
 	def after_insert(self):
 		send_confirmation_email(self)
 		self.add_member_to_live_class()
+		enroll_member_in_batch_courses(self.batch, self.member)
 
 	def validate(self):
 		self.validate_duplicate_members()
-		self.validate_course_enrollment()
 
 	def validate_duplicate_members(self):
 		if frappe.db.exists(
@@ -24,19 +24,6 @@ class LMSBatchEnrollment(Document):
 			{"batch": self.batch, "member": self.member, "name": ["!=", self.name]},
 		):
 			frappe.throw(_("Member already enrolled in this batch"))
-
-	def validate_course_enrollment(self):
-		courses = frappe.get_all("Batch Course", filters={"parent": self.batch}, fields=["course"])
-
-		for course in courses:
-			if not frappe.db.exists(
-				"LMS Enrollment",
-				{"course": course.course, "member": self.member},
-			):
-				enrollment = frappe.new_doc("LMS Enrollment")
-				enrollment.course = course.course
-				enrollment.member = self.member
-				enrollment.save()
 
 	def add_member_to_live_class(self):
 		live_classes = frappe.get_all("LMS Live Class", {"batch_name": self.batch}, ["name", "event"])
@@ -54,6 +41,72 @@ class LMSBatchEnrollment(Document):
 						"parentfield": "event_participants",
 					}
 				).save()
+
+
+def enroll_member_in_batch_courses(batch, member):
+	"""Enrol one member into every course attached to a batch.
+
+	Returns the list of courses the member was newly enrolled into.
+	"""
+	return enroll_members_in_batch_courses(batch, [member]).get(member, [])
+
+
+def enroll_members_in_batch_courses(batch, members):
+	"""Enrol several members into every course attached to a batch.
+
+	Deliberately runs outside `validate` so the batch enrollment row is committed
+	before the course enrollments are created, and with `ignore_permissions` because
+	a Batch Evaluator has no create right on LMS Enrollment but is expected to be
+	able to add students to their own batch. Idempotent - safe to re-run.
+
+	Existing enrollments are resolved in a single query rather than one per
+	(member, course) pair, so saving a large batch stays cheap.
+
+	Returns {member: [courses newly enrolled into]}.
+	"""
+	members = [m for m in dict.fromkeys(members) if m]
+	enrolled = {member: [] for member in members}
+	if not members:
+		return enrolled
+
+	courses = frappe.get_all(
+		"Batch Course",
+		filters={"parent": batch, "parenttype": "LMS Batch"},
+		pluck="course",
+	)
+	courses = [c for c in dict.fromkeys(courses) if c]
+	if not courses:
+		return enrolled
+
+	existing = {
+		(row.course, row.member)
+		for row in frappe.get_all(
+			"LMS Enrollment",
+			filters={"course": ["in", courses], "member": ["in", members]},
+			fields=["course", "member"],
+		)
+	}
+
+	for member in members:
+		for course in courses:
+			if (course, member) in existing:
+				continue
+
+			try:
+				enrollment = frappe.new_doc("LMS Enrollment")
+				enrollment.course = course
+				enrollment.member = member
+				enrollment.insert(ignore_permissions=True)
+				enrolled[member].append(course)
+			except Exception:
+				# One bad pair must not block the rest of the batch, but it must not
+				# fail silently either - the previous version swallowed this entirely.
+				frappe.log_error(
+					title="Batch course enrollment failed",
+					message=f"batch={batch} member={member} course={course}\n\n{frappe.get_traceback()}",
+				)
+
+	return enrolled
 
 
 @frappe.whitelist()

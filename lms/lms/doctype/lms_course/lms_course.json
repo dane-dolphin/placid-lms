@@ -339,7 +339,7 @@
    "print": 1,
    "read": 1,
    "report": 1,
-   "role": "Course Creator",
+   "role": "Moderator",
    "share": 1,
    "write": 1
   },
@@ -350,10 +350,22 @@
    "export": 1,
    "print": 1,
    "read": 1,
-   "report": 1,
-   "role": "Moderator",
-   "share": 1,
+   "role": "Course Creator",
    "write": 1
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "role": "LMS Student"
+  },
+  {
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Batch Evaluator"
   }
  ],
  "row_format": "Dynamic",

@@ -102,7 +102,13 @@ const router = useRouter()
 const readOnlyMode = window.read_only_mode
 
 onMounted(() => {
-	if (!user.data?.is_moderator && !user.data?.is_instructor) {
+	// Facilitators (Batch Evaluator) author assignments too - they used to be
+	// redirected away from this page. Courses and quizzes stay restricted.
+	if (
+		!user.data?.is_moderator &&
+		!user.data?.is_instructor &&
+		!user.data?.is_evaluator
+	) {
 		router.push({ name: 'Courses' })
 	}
 	getAssignmentCount()
