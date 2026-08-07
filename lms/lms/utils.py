@@ -29,7 +29,7 @@ from frappe.utils import (
 
 from lms.lms.md import find_macros, markdown_to_html
 
-RATE_LIMIT = 10000         # requests
+RATE_LIMIT = 1000          # requests
 RATE_LIMIT_WINDOW = 60*60  # seconds (1 hour)
 
 RE_SLUG_NOTALLOWED = re.compile("[^a-z0-9]+")
