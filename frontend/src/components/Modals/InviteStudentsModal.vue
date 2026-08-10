@@ -135,9 +135,10 @@ const resultLines = computed(() => {
 		if (list?.length) lines.push({ label, value: list.join(', ') })
 	}
 
-	add(__('Invited'), r.invited)
-	add(__('Enrolled now (already had an account)'), r.enrolled)
+	add(__('Account created and enrolled'), r.invited)
+	add(__('Enrolled (already had an account)'), r.enrolled)
 	add(__('Already enrolled'), r.already_enrolled)
+	add(__('Could not create an account for'), r.account_failed)
 	add(__('Could not send email to'), r.email_failed)
 	add(__('Not a valid address'), r.invalid)
 

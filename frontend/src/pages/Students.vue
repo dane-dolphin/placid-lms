@@ -43,23 +43,26 @@
 						{{ __(invite.status) }}
 					</Badge>
 
-					<template v-if="invite.status === 'Pending'">
-						<Button
-							variant="subtle"
-							:label="__('Copy link')"
-							@click="copyLink(invite)"
-						/>
-						<Button
-							variant="ghost"
-							:label="__('Resend')"
-							@click="resend(invite)"
-						/>
-						<Button
-							variant="ghost"
-							:label="__('Cancel')"
-							@click="revoke(invite)"
-						/>
-					</template>
+					<!-- Only pending invites carry a link; once the account exists the
+					     password-setup email is the useful one, sent via Resend. -->
+					<Button
+						v-if="invite.invite_url"
+						variant="subtle"
+						:label="__('Copy link')"
+						@click="copyLink(invite)"
+					/>
+					<Button
+						v-if="invite.status !== 'Cancelled'"
+						variant="ghost"
+						:label="__('Resend')"
+						@click="resend(invite)"
+					/>
+					<Button
+						v-if="invite.status === 'Pending'"
+						variant="ghost"
+						:label="__('Cancel')"
+						@click="revoke(invite)"
+					/>
 				</div>
 			</div>
 		</div>
@@ -90,11 +93,14 @@ import InviteStudentsModal from '@/components/Modals/InviteStudentsModal.vue'
 
 const { brand } = sessionStore()
 const showInviteModal = ref(false)
-const currentStatus = ref('Pending')
+// Accepted by default: an invite now provisions the account immediately, so it
+// reaches Accepted within the same request. Pending holds only the ones where
+// account creation failed, which is the exception rather than the waiting room.
+const currentStatus = ref('Accepted')
 
 const statusTabs = [
-	{ label: 'Pending' },
 	{ label: 'Accepted' },
+	{ label: 'Pending' },
 	{ label: 'Cancelled' },
 ]
 
@@ -133,8 +139,13 @@ const copyLink = async (invite) => {
 const resend = (invite) => {
 	call('placid_drip.api.student_invites.resend_invite', { name: invite.name })
 		.then((data) => {
-			if (data.sent) toast.success(__('Invite resent'))
-			else toast.warning(__('Email could not be sent. Copy the link instead.'))
+			if (!data.sent) {
+				toast.warning(__('Email could not be sent.'))
+			} else if (data.kind === 'password') {
+				toast.success(__('Password setup email resent'))
+			} else {
+				toast.success(__('Invite resent'))
+			}
 		})
 		.catch((err) => toast.error(err.messages?.[0] || err.message || String(err)))
 }
