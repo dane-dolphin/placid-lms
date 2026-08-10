@@ -4,12 +4,24 @@
 			<div class="text-ink-gray-9 font-medium">
 				{{ students.data?.length }} {{ __('Students') }}
 			</div>
-			<Button v-if="!readOnlyMode" @click="openStudentModal()">
-				<template #prefix>
-					<Plus class="h-4 w-4" />
-				</template>
-				{{ __('Add') }}
-			</Button>
+			<div class="flex items-center gap-2">
+				<Button v-if="!readOnlyMode" @click="openStudentModal()">
+					<template #prefix>
+						<Plus class="h-4 w-4" />
+					</template>
+					{{ __('Add') }}
+				</Button>
+				<Button
+					v-if="!readOnlyMode"
+					variant="solid"
+					@click="showInviteModal = true"
+				>
+					<template #prefix>
+						<UserPlus class="h-4 w-4" />
+					</template>
+					{{ __('Invite') }}
+				</Button>
+			</div>
 		</div>
 
 		<div v-if="students.data?.length">
@@ -105,6 +117,11 @@
 		:student="selectedStudent"
 		v-model="showStudentProgressModal"
 	/>
+	<InviteStudentsModal
+		:batch="props.batch.data.name"
+		v-model="showInviteModal"
+		@invited="students.reload()"
+	/>
 </template>
 <script setup>
 import {
@@ -121,13 +138,15 @@ import {
 	ListRowItem,
 	toast,
 } from 'frappe-ui'
-import { Plus, Trash2 } from 'lucide-vue-next'
+import { Plus, Trash2, UserPlus } from 'lucide-vue-next'
 import { ref } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
+import InviteStudentsModal from '@/components/Modals/InviteStudentsModal.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import BatchStudentProgress from '@/components/Modals/BatchStudentProgress.vue'
 
 const showStudentModal = ref(false)
+const showInviteModal = ref(false)
 const showStudentProgressModal = ref(false)
 const selectedStudent = ref(null)
 const readOnlyMode = window.read_only_mode
@@ -152,8 +171,14 @@ const getStudentColumns = () => {
 		{
 			label: 'Full Name',
 			key: 'full_name',
-			width: '20rem',
+			width: '16rem',
 			icon: 'user',
+		},
+		{
+			label: 'Organization',
+			key: 'organization',
+			width: '12rem',
+			icon: 'home',
 		},
 		{
 			label: 'Progress',

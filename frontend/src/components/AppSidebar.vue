@@ -232,6 +232,7 @@ const sidebarLinks = ref(getSidebarLinks())
 const showPageModal = ref(false)
 const isModerator = ref(false)
 const isInstructor = ref(false)
+const isEvaluator = ref(false)
 const pageToEdit = ref(null)
 const settingsStore = useSettings()
 const { sidebarSettings } = settingsStore
@@ -323,6 +324,25 @@ const addQuizzes = () => {
 		icon: 'ClipboardPen',
 		to: 'Quizzes',
 		activeFor: ['Quizzes', 'QuizForm', 'QuizSubmissionList', 'QuizSubmission'],
+	})
+}
+
+// Facilitators get this too, unlike Quizzes/Assignments above - inviting students
+// into a batch you run is the whole point of the page, so gating it on
+// instructor/moderator would lock out its main audience.
+const addStudents = () => {
+	if (!isInstructor.value && !isModerator.value && !isEvaluator.value) return
+
+	const studentsLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Students'
+	)
+	if (studentsLinkExists) return
+
+	sidebarLinks.value.splice(2, 0, {
+		label: 'Students',
+		icon: 'UserPlus',
+		to: 'Students',
+		activeFor: ['Students'],
 	})
 }
 
@@ -682,11 +702,13 @@ watch(userResource, () => {
 	if (userResource.data) {
 		isModerator.value = userResource.data.is_moderator
 		isInstructor.value = userResource.data.is_instructor
+		isEvaluator.value = userResource.data.is_evaluator
 		addHome()
 		addPrograms()
 		addProgrammingExercises()
 		addQuizzes()
 		addAssignments()
+		addStudents()
 		setUpOnboarding()
 	}
 })

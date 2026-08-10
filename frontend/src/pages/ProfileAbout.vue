@@ -1,4 +1,13 @@
 <template>
+	<div class="mt-7 mb-10" v-if="profile.data.organization">
+		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
+			{{ __('Organization') }}
+		</h2>
+		<div class="flex items-center text-sm text-ink-gray-8">
+			<Home class="h-4 w-4 stroke-1.5 mr-2 text-ink-gray-6" />
+			{{ profile.data.organization }}
+		</div>
+	</div>
 	<div class="mt-7 mb-10">
 		<h2 class="mb-3 text-lg font-semibold text-ink-gray-9">
 			{{ __('About') }}
@@ -116,7 +125,7 @@
 <script setup>
 import { inject } from 'vue'
 import { createResource, Popover, Button } from 'frappe-ui'
-import { X, LinkedinIcon, Twitter } from 'lucide-vue-next'
+import { Home, X, LinkedinIcon, Twitter } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { decodeEntities } from '@/utils'
 import DOMPurify from 'dompurify'

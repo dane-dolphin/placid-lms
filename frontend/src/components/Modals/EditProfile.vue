@@ -74,6 +74,13 @@
 						v-model="profile.language"
 						doctype="Language"
 					/>
+					<Link
+						:label="__('Organization')"
+						v-model="profile.organization"
+						doctype="Organization"
+						:filters="{ is_group: 0 }"
+						:description="__('The parish you belong to.')"
+					/>
 				</div>
 				<div>
 					<div class="mb-4">
@@ -124,6 +131,7 @@ const profile = reactive({
 	headline: '',
 	bio: '',
 	image: '',
+	organization: '',
 })
 
 const imageResource = createResource({
@@ -214,6 +222,7 @@ watch(
 			profile.last_name = newVal.last_name
 			profile.headline = newVal.headline
 			profile.language = newVal.language
+			profile.organization = newVal.organization
 			profile.bio = newVal.bio
 			if (newVal.user_image) imageResource.submit({ image: newVal.user_image })
 		}
