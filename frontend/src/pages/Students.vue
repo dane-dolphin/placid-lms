@@ -14,6 +14,75 @@
 	<div class="p-5 pb-10">
 		<div class="flex items-center justify-between mb-5">
 			<div class="text-lg text-ink-gray-9 font-semibold">
+				{{ __('Students') }}
+			</div>
+			<div v-if="students.data?.length" class="text-sm text-ink-gray-5">
+				{{ students.data.length }}
+				{{ students.data.length === 1 ? __('student') : __('students') }}
+			</div>
+		</div>
+
+		<div v-if="students.loading" class="text-sm italic text-ink-gray-5">
+			{{ __('Loading...') }}
+		</div>
+
+		<div
+			v-else-if="sortedStudents.length"
+			class="rounded-md border overflow-x-auto mb-10"
+		>
+			<table class="w-full text-base">
+				<thead>
+					<tr class="bg-surface-gray-2 text-ink-gray-7">
+						<th
+							v-for="column in studentColumns"
+							:key="column.key"
+							class="text-left font-medium px-4 py-2.5 whitespace-nowrap cursor-pointer select-none hover:text-ink-gray-9"
+							@click="sortBy(column.key)"
+						>
+							<span class="inline-flex items-center gap-1">
+								{{ __(column.label) }}
+								<ArrowUp
+									v-if="sortKey === column.key && sortAsc"
+									class="h-3.5 w-3.5 stroke-1.5"
+								/>
+								<ArrowDown
+									v-else-if="sortKey === column.key"
+									class="h-3.5 w-3.5 stroke-1.5"
+								/>
+								<ChevronsUpDown
+									v-else
+									class="h-3.5 w-3.5 stroke-1.5 text-ink-gray-4"
+								/>
+							</span>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr
+						v-for="student in sortedStudents"
+						:key="student.email"
+						class="border-t"
+					>
+						<td class="px-4 py-2.5 text-ink-gray-9">
+							{{ student.full_name || __('Not registered yet') }}
+						</td>
+						<td class="px-4 py-2.5 text-ink-gray-7">
+							{{ student.email }}
+						</td>
+						<td class="px-4 py-2.5 text-ink-gray-7">
+							{{ batchNames(student) || '-' }}
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div v-else class="text-sm italic text-ink-gray-5 mb-10">
+			{{ __('No students yet.') }}
+		</div>
+
+		<div class="flex items-center justify-between mb-5">
+			<div class="text-lg text-ink-gray-9 font-semibold">
 				{{ __('Invited students') }}
 			</div>
 			<TabButtons :buttons="statusTabs" v-model="currentStatus" class="w-fit" />
@@ -72,7 +141,15 @@
 		</div>
 	</div>
 
-	<InviteStudentsModal v-model="showInviteModal" @invited="invites.reload()" />
+	<InviteStudentsModal
+		v-model="showInviteModal"
+		@invited="
+			() => {
+				invites.reload()
+				students.reload()
+			}
+		"
+	/>
 </template>
 
 <script setup>
@@ -87,7 +164,7 @@ import {
 	toast,
 	usePageMeta,
 } from 'frappe-ui'
-import { Plus } from 'lucide-vue-next'
+import { ArrowDown, ArrowUp, ChevronsUpDown, Plus } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import InviteStudentsModal from '@/components/Modals/InviteStudentsModal.vue'
 
@@ -110,6 +187,55 @@ const invites = createResource({
 		return { status: currentStatus.value }
 	},
 	auto: true,
+})
+
+// Everyone in a batch this user runs, plus everyone they invited. The endpoint
+// merges the two on email, so an invite that has since been accepted appears
+// once with its batch rather than twice.
+const students = createResource({
+	url: 'placid_drip.api.students.get_my_students',
+	auto: true,
+})
+
+const studentColumns = [
+	{ label: 'Name', key: 'full_name' },
+	{ label: 'Email', key: 'email' },
+	{ label: 'Batch', key: 'batches' },
+]
+
+const sortKey = ref('full_name')
+const sortAsc = ref(true)
+
+const sortBy = (key) => {
+	if (sortKey.value === key) {
+		sortAsc.value = !sortAsc.value
+	} else {
+		sortKey.value = key
+		sortAsc.value = true
+	}
+}
+
+const batchNames = (student) =>
+	(student.batches || []).map((b) => b.title || b.name).join(', ')
+
+// Sorted here rather than server-side: the roster is one page of a facilitator's
+// own batches, so re-fetching on every header click would cost a round trip to
+// reorder a list already in memory.
+const sortedStudents = computed(() => {
+	const rows = [...(students.data || [])]
+	const key = sortKey.value
+
+	const valueOf = (row) =>
+		key === 'batches' ? batchNames(row) : row[key] || ''
+
+	rows.sort((a, b) => {
+		const result = valueOf(a).localeCompare(valueOf(b), undefined, {
+			sensitivity: 'base',
+		})
+		return sortAsc.value ? result : -result
+	})
+
+	return rows
 })
 
 watch(currentStatus, () => invites.reload())
@@ -155,6 +281,9 @@ const revoke = (invite) => {
 		.then(() => {
 			toast.success(__('Invite cancelled'))
 			invites.reload()
+			// A cancelled invite drops out of the roster unless the person is also
+			// enrolled in one of the caller's batches.
+			students.reload()
 		})
 		.catch((err) => toast.error(err.messages?.[0] || err.message || String(err)))
 }

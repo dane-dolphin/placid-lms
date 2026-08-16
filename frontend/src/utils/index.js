@@ -558,6 +558,21 @@ export const canCreateCourse = () => {
 	)
 }
 
+/* A facilitator runs batches; they are not working through the material
+   themselves. `is_evaluator` alone is not enough - a moderator can also hold the
+   Batch Evaluator role, and the admin view should keep behaving as it did. */
+export const isFacilitator = () => {
+	const { userResource } = usersStore()
+	return !!(userResource.data?.is_evaluator && !userResource.data?.is_moderator)
+}
+
+/* Course completion - the percentage tracker and the per-lesson ticks - is a
+   learner's view of their own progress. It is meaningless on a facilitator's
+   screen, where it reads as a claim about students rather than about them. */
+export const showsCourseProgress = () => {
+	return !isFacilitator()
+}
+
 export const enablePlyr = async () => {
 	await wait(500)
 

@@ -29,6 +29,7 @@
 							class="w-full"
 						/>
 						<MultiSelect
+							v-if="canEditInstructors"
 							v-model="instructors"
 							doctype="Course Evaluator"
 							:label="__('Instructors')"
@@ -36,6 +37,20 @@
 							:onCreate="(close) => openSettings('Evaluators', close)"
 							:filters="{ ignore_user_type: 1 }"
 						/>
+						<!-- A facilitator always runs their own batch, so the picker is
+						     replaced by what it would have been set to anyway. Shown rather
+						     than hidden outright so it is clear who the batch is filed
+						     under. -->
+						<div v-else>
+							<label class="block text-sm text-ink-gray-5 mb-1">
+								{{ __('Instructors') }}
+							</label>
+							<div
+								class="rounded bg-surface-gray-2 text-base text-ink-gray-8 py-1.5 px-2.5"
+							>
+								{{ instructorLabel }}
+							</div>
+						</div>
 					</div>
 					<FormControl
 						v-model="batch.description"
@@ -57,16 +72,6 @@
 						v-model="batch.published"
 						type="checkbox"
 						:label="__('Published')"
-					/>
-					<FormControl
-						v-model="batch.allow_self_enrollment"
-						type="checkbox"
-						:label="__('Allow self enrollment')"
-					/>
-					<FormControl
-						v-model="batch.certification"
-						type="checkbox"
-						:label="__('Certification')"
 					/>
 				</div>
 			</div>
@@ -94,26 +99,10 @@
 					</div>
 					<div class="space-y-5">
 						<FormControl
-							v-model="batch.start_time"
-							:label="__('Session Start Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
-						<FormControl
-							v-model="batch.end_time"
-							:label="__('Session End Time')"
-							type="time"
-							class="mb-4"
-							:required="true"
-						/>
-					</div>
-					<div class="space-y-5">
-						<FormControl
 							v-model="batch.timezone"
 							:label="__('Timezone')"
 							type="text"
-							:placeholder="__('Example: IST (+5:30)')"
+							:placeholder="__('CST')"
 							class="mb-4"
 							:required="true"
 						/>
@@ -139,150 +128,6 @@
 						:editable="true"
 						:fixedMenu="true"
 						editorClass="prose-sm max-w-none border-b border-x bg-surface-gray-2 rounded-b-md py-1 px-2 min-h-[7rem] max-h-[20rem] overflow-y-scroll mb-4"
-					/>
-				</div>
-			</div>
-
-			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
-				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
-					{{ __('Configurations') }}
-				</div>
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-					<div class="space-y-5">
-						<FormControl
-							v-model="batch.seat_count"
-							:label="__('Seat Count')"
-							type="number"
-							class="mb-4"
-							:placeholder="__('Number of seats available')"
-						/>
-						<Link
-							doctype="Email Template"
-							:label="__('Email Template')"
-							v-model="batch.confirmation_email_template"
-							:onCreate="
-								(value, close) => {
-									openSettings('Email Templates', close)
-								}
-							"
-						/>
-						<Link
-							doctype="LMS Zoom Settings"
-							:label="__('Zoom Account')"
-							v-model="batch.zoom_account"
-							:onCreate="
-								(value, close) => {
-									openSettings('Zoom Accounts', close)
-								}
-							"
-						/>
-					</div>
-					<div class="space-y-5">
-						<FormControl
-							v-model="batch.medium"
-							type="select"
-							:options="[
-								{
-									label: 'Online',
-									value: 'Online',
-								},
-								{
-									label: 'Offline',
-									value: 'Offline',
-								},
-							]"
-							:label="__('Medium')"
-							class="mb-4"
-						/>
-						<Link
-							doctype="LMS Category"
-							:label="__('Category')"
-							v-model="batch.category"
-							:onCreate="(value, close) => openSettings('Categories', close)"
-						/>
-					</div>
-					<div class="space-y-5">
-						<div>
-							<div class="text-xs text-ink-gray-5">
-								{{ __('Meta Image') }}
-							</div>
-							<FileUploader
-								v-if="!batch.image"
-								:fileTypes="['image/*']"
-								:validateFile="validateFile"
-								@success="(file) => saveImage(file)"
-							>
-								<template
-									v-slot="{ file, progress, uploading, openFileSelector }"
-								>
-									<div class="flex items-center">
-										<div
-											class="border rounded-md w-fit py-5 px-5 md:px-20 cursor-pointer"
-											@click="openFileSelector"
-										>
-											<Image class="size-5 stroke-1 text-ink-gray-7" />
-										</div>
-										<div class="ml-4">
-											<Button @click="openFileSelector">
-												{{ __('Upload') }}
-											</Button>
-											<div class="mt-1 text-ink-gray-5 text-sm leading-5">
-												{{
-													__('Appears when the batch URL is shared on socials')
-												}}
-											</div>
-										</div>
-									</div>
-								</template>
-							</FileUploader>
-							<div v-else class="mb-4">
-								<div class="flex items-center">
-									<img
-										:src="batch.image.file_url"
-										class="border rounded-md w-40"
-									/>
-									<div class="ml-4">
-										<Button @click="removeImage()">
-											{{ __('Remove') }}
-										</Button>
-										<div class="mt-2 text-ink-gray-5 text-sm">
-											{{
-												__(
-													'Appears when the batch URL is shared on any online platform'
-												)
-											}}
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="px-5 md:px-20 pb-5 space-y-5">
-				<div class="text-lg text-ink-gray-9 font-semibold">
-					{{ __('Pricing') }}
-				</div>
-				<FormControl
-					v-model="batch.paid_batch"
-					type="checkbox"
-					:label="__('Paid Batch')"
-				/>
-				<div
-					v-if="batch.paid_batch"
-					class="grid grid-cols-1 md:grid-cols-3 gap-5"
-				>
-					<FormControl
-						v-model="batch.amount"
-						:label="__('Amount')"
-						type="number"
-					/>
-					<Link
-						doctype="Currency"
-						v-model="batch.currency"
-						:filters="{ enabled: 1 }"
-						:label="__('Currency')"
 					/>
 				</div>
 			</div>
@@ -323,7 +168,6 @@ import {
 import {
 	Breadcrumbs,
 	FormControl,
-	FileUploader,
 	Button,
 	TextEditor,
 	createResource,
@@ -333,19 +177,12 @@ import {
 	Toast,
 } from 'frappe-ui'
 import { useRouter } from 'vue-router'
-import { Image, Trash2 } from 'lucide-vue-next'
+import { Trash2 } from 'lucide-vue-next'
 import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
-import Link from '@/components/Controls/Link.vue'
-import {
-	openSettings,
-	getMetaInfo,
-	updateMetaInfo,
-	validateFile,
-	escapeHTML,
-} from '@/utils'
+import { openSettings, getMetaInfo, updateMetaInfo, escapeHTML } from '@/utils'
 
 const router = useRouter()
 const user = inject('$user')
@@ -362,6 +199,14 @@ const props = defineProps({
 	},
 })
 
+// `start_time` and `end_time` are still mandatory on LMS Batch and are still
+// used by `accept_enrollments` and `categorize_batches` server-side, so they are
+// kept on the payload at a fixed session slot rather than dropped. The form no
+// longer asks for them and nothing renders them - a batch here is not scheduled
+// around a fixed hour of the day.
+const DEFAULT_START_TIME = '09:00:00'
+const DEFAULT_END_TIME = '10:00:00'
+
 const batch = reactive({
 	title: '',
 	published: false,
@@ -369,26 +214,36 @@ const batch = reactive({
 	batch_details: '',
 	start_date: '',
 	end_date: '',
-	start_time: '',
-	end_time: '',
+	start_time: DEFAULT_START_TIME,
+	end_time: DEFAULT_END_TIME,
 	timezone: '',
 	evaluation_end_date: '',
-	confirmation_email_template: '',
-	seat_count: '',
-	medium: '',
-	category: '',
-	allow_self_enrollment: false,
-	certification: false,
-	image: null,
-	paid_batch: false,
-	currency: '',
-	amount: 0,
-	zoom_account: '',
 })
 
 const meta = reactive({
 	description: '',
 	keywords: '',
+})
+
+// A facilitator does not get to pick who runs their batch, so the picker is
+// hidden for them and pre-filled with themselves. Moderators keep the full
+// control - they set up batches on other people's behalf.
+const canEditInstructors = computed(
+	() => !!(user.data?.is_moderator || user.data?.is_system_manager)
+)
+
+const instructorLabel = computed(() => {
+	const names = instructors.value.length
+		? instructors.value
+		: [user.data?.name].filter(Boolean)
+
+	// The list holds user ids, which are email addresses. The caller's own row is
+	// the one this field is usually showing, and a name reads better than their
+	// login there; co-instructors stay as addresses because their names are not
+	// on this payload.
+	return names
+		.map((name) => (name === user.data?.name ? user.data?.full_name || name : name))
+		.join(', ')
 })
 
 onMounted(() => {
@@ -397,6 +252,11 @@ onMounted(() => {
 		fetchBatchInfo()
 	} else {
 		capture('batch_form_opened')
+		// Only on create. On edit the list is whatever the batch already has, so a
+		// facilitator saving a batch they co-run does not drop their co-instructors.
+		if (!canEditInstructors.value && user.data?.name) {
+			instructors.value = [user.data.name]
+		}
 	}
 	window.addEventListener('keydown', keyboardShortcut)
 })
@@ -427,7 +287,6 @@ const newBatch = createResource({
 		return {
 			doc: {
 				doctype: 'LMS Batch',
-				meta_image: batch.image?.file_url,
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
 				})),
@@ -451,23 +310,13 @@ const batchDetail = createResource({
 				data.instructors.forEach((instructor) => {
 					instructors.value.push(instructor.instructor)
 				})
-			} else if (['start_time', 'end_time'].includes(key)) {
-				let [hours, minutes, seconds] = data[key].split(':')
-				hours = hours.length == 1 ? '0' + hours : hours
-				batch[key] = `${hours}:${minutes}`
 			} else if (Object.hasOwn(batch, key)) batch[key] = data[key]
 		})
-		let checkboxes = [
-			'published',
-			'paid_batch',
-			'allow_self_enrollment',
-			'certification',
-		]
-		for (let idx in checkboxes) {
-			let key = checkboxes[idx]
-			batch[key] = batch[key] ? true : false
-		}
-		if (data.meta_image) imageResource.reload({ image: data.meta_image })
+		// Only the checkboxes the form still shows. Listing one it does not - as
+		// this did for paid_batch, allow_self_enrollment and certification - adds
+		// the key to `batch` as false and saves that back over the batch's real
+		// value, silently switching the setting off on every edit.
+		batch.published = batch.published ? true : false
 	},
 })
 
@@ -478,26 +327,12 @@ const editBatch = createResource({
 			doctype: 'LMS Batch',
 			name: props.batchName,
 			fieldname: {
-				meta_image: batch.image?.file_url,
 				instructors: instructors.value.map((instructor) => ({
 					instructor: instructor,
 				})),
 				...batch,
 			},
 		}
-	},
-})
-
-const imageResource = createResource({
-	url: 'lms.lms.api.get_file_info',
-	makeParams(values) {
-		return {
-			file_url: values.image,
-		}
-	},
-	auto: false,
-	onSuccess(data) {
-		batch.image = data
 	},
 })
 
@@ -597,14 +432,6 @@ const trashBatch = (close) => {
 			name: 'Batches',
 		})
 	})
-}
-
-const saveImage = (file) => {
-	batch.image = file
-}
-
-const removeImage = () => {
-	batch.image = null
 }
 
 const breadcrumbs = computed(() => {

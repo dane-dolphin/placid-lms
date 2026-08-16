@@ -41,13 +41,6 @@
 			:endDate="batch.data.end_date"
 			class="mb-3"
 		/>
-		<div class="flex items-center mb-3 text-ink-gray-7">
-			<Clock class="h-4 w-4 stroke-1.5 mr-2" />
-			<span>
-				{{ formatTime(batch.data.start_time) }} -
-				{{ formatTime(batch.data.end_time) }}
-			</span>
-		</div>
 		<div v-if="batch.data.timezone" class="flex items-center text-ink-gray-7">
 			<Globe class="h-4 w-4 stroke-1.5 mr-2" />
 			<span>
@@ -113,7 +106,7 @@
 				{{ __('Enroll Now') }}
 			</Button>
 			<router-link
-				v-if="isModerator"
+				v-if="canEdit"
 				:to="{
 					name: 'BatchForm',
 					params: {
@@ -138,7 +131,6 @@ import { inject, computed } from 'vue'
 import { Button, createResource, toast } from 'frappe-ui'
 import {
 	BookOpen,
-	Clock,
 	CreditCard,
 	Globe,
 	GraduationCap,
@@ -146,7 +138,7 @@ import {
 	Pencil,
 	Settings,
 } from 'lucide-vue-next'
-import { formatNumberIntoCurrency, formatTime } from '@/utils'
+import { formatNumberIntoCurrency } from '@/utils'
 import DateRange from '@/components/Common/DateRange.vue'
 import { useRouter } from 'vue-router'
 
@@ -207,6 +199,14 @@ const isModerator = computed(() => {
 
 const isEvaluator = computed(() => {
 	return user.data?.is_evaluator
+})
+
+/* `can_edit` is resolved server-side - a facilitator gets it for the batches
+   they created or teach. Falls back to the moderator check so an older backend
+   that does not send the flag keeps behaving as it did. */
+const canEdit = computed(() => {
+	const flag = props.batch.data?.can_edit
+	return flag === undefined ? isModerator.value : !!flag
 })
 
 const canAccessBatch = computed(() => {

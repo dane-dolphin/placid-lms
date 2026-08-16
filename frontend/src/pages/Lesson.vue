@@ -298,14 +298,14 @@
 						{{ lesson.data.course_title }}
 					</div>
 					<div
-						v-if="user && lesson.data.membership"
+						v-if="user && lesson.data.membership && showProgress"
 						class="text-sm mt-4 mb-2 text-ink-gray-5"
 					>
 						{{ Math.ceil(lessonProgress) }}% {{ __('completed') }}
 					</div>
 
 					<ProgressBar
-						v-if="user && lesson.data.membership"
+						v-if="user && lesson.data.membership && showProgress"
 						:progress="lessonProgress"
 					/>
 				</div>
@@ -363,7 +363,12 @@ import {
 	MessageCircleQuestion,
 	TrendingUp,
 } from 'lucide-vue-next'
-import { getEditorTools, enablePlyr, highlightText } from '@/utils'
+import {
+	getEditorTools,
+	enablePlyr,
+	highlightText,
+	showsCourseProgress,
+} from '@/utils'
 import { sessionStore } from '@/stores/session'
 import { useSidebar } from '@/stores/sidebar'
 import EditorJS from '@editorjs/editorjs'
@@ -386,6 +391,7 @@ const allowDiscussions = ref(false)
 const editor = ref(null)
 const instructorEditor = ref(null)
 const lessonProgress = ref(0)
+const showProgress = computed(() => showsCourseProgress())
 const lessonContainer = ref(null)
 const zenModeEnabled = ref(false)
 const showStatsDialog = ref(false)

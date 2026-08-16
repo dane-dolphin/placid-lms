@@ -53,7 +53,7 @@
 					/>
 					<div class="w-full lg:min-w-0 lg:w-32 xl:w-40">
 						<Select
-							v-if="categories.length"
+							v-if="categories.length > 1"
 							v-model="currentCategory"
 							:options="categories"
 							:placeholder="__('Category')"
@@ -158,15 +158,44 @@ const levelsLoaded = ref(false)
 onMounted(() => {
 	setFiltersFromQuery()
 	fetchLevels()
+	fetchCategories()
 	updateCourses()
 	getCourseCount()
-	categories.value = [
-		{
-			label: '',
-			value: null,
-		},
-	]
 })
+
+// Comes from the catalogue rather than from the courses currently on screen.
+// `get_courses` pages 30 at a time ordered by `enrollments desc`, so a new
+// category's courses sit behind every popular one and would never reach the
+// dropdown - which is why a freshly created category kept going missing here.
+const fetchCategories = () => {
+	call('placid_drip.api.course_categories.get_course_categories')
+		.then((data) => {
+			setCategories(data || [])
+		})
+		.catch(() => {
+			// Older backend, or the app is not installed. An empty list hides the
+			// filter rather than leaving a dropdown that cannot filter anything.
+			setCategories([])
+		})
+}
+
+const setCategories = (names) => {
+	// The blank first entry is the "no category filter" option.
+	categories.value = [{ label: '', value: null }].concat(
+		names.map((name) => ({ label: name, value: name }))
+	)
+
+	// A category can be deleted or unpublished while a deep link to it is open.
+	// Dropping the stale value keeps the Select from showing a blank selection
+	// over a filter that is still silently applied.
+	if (
+		currentCategory.value &&
+		!names.includes(currentCategory.value)
+	) {
+		currentCategory.value = null
+		updateCourses()
+	}
+}
 
 // A site with no Course Level records behaves exactly as before: `levels` stays
 // empty, `showLevelPicker` is false, and the flat course grid renders on load.
@@ -230,20 +259,7 @@ const courses = createListResource({
 	cache: ['courses', user.data?.name],
 	pageLength: pageLength.value,
 	start: start.value,
-	onSuccess(data) {
-		setCategories(data)
-	},
 })
-
-const setCategories = (data) => {
-	let allCategories = data.map((course) => course.category)
-	allCategories = allCategories.filter(
-		(category, index) => allCategories.indexOf(category) === index && category
-	)
-	if (categories.value.length <= allCategories.length) {
-		updateCategories(data)
-	}
-}
 
 const isPersonaCaptured = async () => {
 	let persona = await call('frappe.client.get_single_value', {
@@ -396,19 +412,6 @@ const setQueryParams = () => {
 	}
 
 	history.replaceState({}, '', `${location.pathname}${queryString}`)
-}
-
-const updateCategories = (data) => {
-	data.forEach((course) => {
-		if (
-			course.category &&
-			!categories.value.find((category) => category.value === course.category)
-		)
-			categories.value.push({
-				label: course.category,
-				value: course.category,
-			})
-	})
 }
 
 watch(currentTab, () => {

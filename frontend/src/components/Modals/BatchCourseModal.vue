@@ -31,7 +31,11 @@
 					}
 				"
 			/>
+			<!-- A facilitator evaluates the courses in their own batch, so there is
+			     nothing to pick. The server assigns them either way; hiding the field
+			     stops it offering a choice it is going to overrule. -->
 			<Link
+				v-if="canPickEvaluator"
 				doctype="Course Evaluator"
 				v-model="evaluator"
 				:label="__('Evaluator')"
@@ -43,7 +47,7 @@
 </template>
 <script setup>
 import { Dialog, createResource, toast } from 'frappe-ui'
-import { ref, inject } from 'vue'
+import { computed, ref, inject } from 'vue'
 import Link from '@/components/Controls/Link.vue'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { openSettings } from '@/utils'
@@ -64,18 +68,19 @@ const props = defineProps({
 	},
 })
 
+const canPickEvaluator = computed(
+	() => !!(user.data?.is_moderator || user.data?.is_system_manager)
+)
+
 const createBatchCourse = createResource({
-	url: 'frappe.client.insert',
+	url: 'placid_drip.api.batch_courses.add_batch_course',
 	makeParams(values) {
 		return {
-			doc: {
-				doctype: 'Batch Course',
-				parent: props.batch,
-				parenttype: 'LMS Batch',
-				parentfield: 'courses',
-				course: course.value,
-				evaluator: evaluator.value,
-			},
+			batch: props.batch,
+			course: course.value,
+			// Sent only when the dialog actually offered the choice. The endpoint
+			// ignores it for anyone else and records them as the evaluator.
+			evaluator: canPickEvaluator.value ? evaluator.value : null,
 		}
 	},
 })

@@ -140,7 +140,10 @@
 														@click.prevent="trashLesson(lesson.name, chapter.name)"
 														class="h-4 w-4 text-ink-red-3 ml-auto invisible group-hover:visible"
 													/>
-													<Check v-if="lesson.is_complete" class="h-4 w-4 text-green-700 ml-2" />
+													<Check
+														v-if="lesson.is_complete && showProgress"
+														class="h-4 w-4 text-green-700 ml-2"
+													/>
 												</div>
 											</router-link>
 										</div>
@@ -180,7 +183,7 @@
 </template>
 <script setup>
 import { Button, createResource, Tooltip, toast } from 'frappe-ui'
-import { getCurrentInstance, inject, ref, watch } from 'vue'
+import { computed, getCurrentInstance, inject, ref, watch } from 'vue'
 import Draggable from 'vuedraggable'
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/vue'
 import {
@@ -194,11 +197,13 @@ import {
 	Trash2,
 } from 'lucide-vue-next'
 import { useRoute, useRouter } from 'vue-router'
+import { showsCourseProgress } from '@/utils'
 import ChapterModal from '@/components/Modals/ChapterModal.vue'
 
 const route = useRoute()
 const router = useRouter()
 const user = inject('$user')
+const showProgress = computed(() => showsCourseProgress())
 const showChapterModal = ref(false)
 const currentChapter = ref(null)
 const app = getCurrentInstance()

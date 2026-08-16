@@ -36,12 +36,6 @@
 				:endDate="batch.end_date"
 				class="text-sm text-ink-gray-7"
 			/>
-			<div class="flex items-center text-sm text-ink-gray-7">
-				<Clock class="h-4 w-4 stroke-1.5 mr-2 text-ink-gray-7" />
-				<span>
-					{{ formatTime(batch.start_time) }} - {{ formatTime(batch.end_time) }}
-				</span>
-			</div>
 			<div
 				v-if="batch.timezone"
 				class="flex items-center text-sm text-ink-gray-7"
@@ -70,8 +64,7 @@
 	</div>
 </template>
 <script setup>
-import { formatTime } from '@/utils'
-import { Clock, Globe } from 'lucide-vue-next'
+import { Globe } from 'lucide-vue-next'
 import DateRange from '@/components/Common/DateRange.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'

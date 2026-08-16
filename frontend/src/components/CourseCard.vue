@@ -94,11 +94,14 @@
 			</div>
 
 			<ProgressBar
-				v-if="user && course.membership"
+				v-if="user && course.membership && showProgress"
 				:progress="course.membership.progress"
 			/>
 
-			<div v-if="user && course.membership" class="text-sm mt-2 mb-4">
+			<div
+				v-if="user && course.membership && showProgress"
+				class="text-sm mt-2 mb-4"
+			>
 				{{ Math.ceil(course.membership.progress) }}% {{ __('completed') }}
 			</div>
 
@@ -137,12 +140,14 @@ import { Award, BookOpen, GraduationCap, Star, Users } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import { Tooltip } from 'frappe-ui'
 import { theme } from '@/utils/theme'
-import { formatAmount } from '@/utils'
+import { computed } from 'vue'
+import { formatAmount, showsCourseProgress } from '@/utils'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 
 const { user } = sessionStore()
+const showProgress = computed(() => showsCourseProgress())
 
 const props = defineProps({
 	course: {

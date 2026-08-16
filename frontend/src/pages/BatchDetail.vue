@@ -75,8 +75,6 @@
 <script setup>
 import { computed, inject } from 'vue'
 import { useRouter } from 'vue-router'
-import { BookOpen, Clock } from 'lucide-vue-next'
-import { formatTime } from '@/utils'
 import { Breadcrumbs, createResource, usePageMeta } from 'frappe-ui'
 import { sessionStore } from '@/stores/session'
 import CourseCard from '@/components/CourseCard.vue'

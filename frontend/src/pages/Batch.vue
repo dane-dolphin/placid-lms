@@ -133,13 +133,6 @@
 						:endDate="batch.data.end_date"
 						class="mb-3"
 					/>
-					<div class="flex items-center mb-3 text-ink-gray-7">
-						<Clock class="h-4 w-4 stroke-1.5 mr-2" />
-						<span>
-							{{ formatTime(batch.data.start_time) }} -
-							{{ formatTime(batch.data.end_time) }}
-						</span>
-					</div>
 					<div
 						v-if="batch.data.timezone"
 						class="flex items-center mb-3 text-ink-gray-7"
@@ -225,7 +218,6 @@ import {
 	usePageMeta,
 } from 'frappe-ui'
 import {
-	Clock,
 	LayoutDashboard,
 	BookOpen,
 	Laptop,
@@ -236,7 +228,6 @@ import {
 	Globe,
 	ClipboardPen,
 } from 'lucide-vue-next'
-import { formatTime } from '@/utils'
 import { sessionStore } from '@/stores/session'
 import CourseInstructors from '@/components/CourseInstructors.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
@@ -266,6 +257,9 @@ const { brand } = sessionStore()
 const tabIndex = ref(0)
 const readOnlyMode = window.read_only_mode
 
+/* Order matters here: Course-Locks sits directly after Dashboard because it is
+   what a facilitator opens most often, and the two conversation tabs are pushed
+   to the end so the day-to-day management tabs are not split apart by them. */
 const tabs = computed(() => {
 	let batchTabs = []
 	batchTabs.push({
@@ -274,6 +268,11 @@ const tabs = computed(() => {
 	})
 
 	if (isAdmin.value) {
+		batchTabs.push({
+			label: 'Course-Locks',
+			icon: Lock,
+		})
+
 		batchTabs.push({
 			label: 'Students',
 			icon: ClipboardPen,
@@ -295,31 +294,22 @@ const tabs = computed(() => {
 			label: 'Assessments',
 			icon: BookOpenCheck,
 		})
-	}
 
-	batchTabs.push({
-		label: 'Announcements',
-		icon: Mail,
-	})
+		batchTabs.push({
+			label: 'Quiz-Submissions',
+			icon: ClipboardPen,
+		})
+	}
 
 	batchTabs.push({
 		label: 'Discussions',
 		icon: MessageCircle,
 	})
 
-	if (isAdmin.value) {
-		batchTabs.push({
-			label: 'Course-Locks',
-			icon: Lock,
-		})
-	}
-
-	if (isAdmin.value) {
-		batchTabs.push({
-			label: 'Quiz-Submissions',
-			icon: ClipboardPen,
-		})
-	}
+	batchTabs.push({
+		label: 'Announcements',
+		icon: Mail,
+	})
 
 	return batchTabs
 })
