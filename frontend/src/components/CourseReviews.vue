@@ -42,7 +42,7 @@
 								:class="
 									index <= Math.ceil(review.rating)
 										? 'fill-yellow-500'
-										: 'fill-gray-300'
+										: 'fill-outline-gray-3'
 								"
 							/>
 						</div>

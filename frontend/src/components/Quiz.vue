@@ -127,7 +127,7 @@
 					<div v-if="questionDetails.data.type == 'Choices'" v-for="index in 4">
 						<label
 							v-if="questionDetails.data[`option_${index}`]"
-							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-blue-600"
+							class="flex items-center bg-surface-gray-3 rounded-md p-3 mt-4 w-full cursor-pointer focus:border-outline-gray-4"
 						>
 							<input
 								v-if="!questionDetails.data.multiple"

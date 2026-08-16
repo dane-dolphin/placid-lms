@@ -47,7 +47,7 @@
 								<Badge
 									v-if="tab.count"
 									:class="{
-										'text-ink-gray-9 border border-gray-900': selected,
+										'text-ink-gray-9 border border-outline-gray-4': selected,
 									}"
 									variant="subtle"
 									theme="gray"

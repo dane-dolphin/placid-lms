@@ -10,7 +10,7 @@
 				@mouseleave="hoveredRating = 0"
 			>
 				<Star
-					class="fill-gray-400 text-gray-50 stroke-1 mr-1 cursor-pointer"
+					class="fill-outline-gray-3 text-surface-white stroke-1 mr-1 cursor-pointer"
 					:class="iconClasses(index)"
 					@click="markRating(index)"
 				/>

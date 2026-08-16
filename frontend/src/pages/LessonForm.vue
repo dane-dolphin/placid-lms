@@ -65,9 +65,9 @@
 								<div class="font-medium text-ink-gray-9">Uploading…</div>
 								<div class="text-sm text-ink-gray-6 truncate">{{ uploadFilename }}</div>
 
-								<div class="h-2 w-full bg-gray-200 rounded">
+								<div class="h-2 w-full bg-surface-gray-3 rounded">
 								<div
-									class="h-2 bg-gray-900 rounded"
+									class="h-2 bg-surface-gray-7 rounded"
 									:style="{ width: `${uploadPct}%` }"
 								></div>
 								</div>

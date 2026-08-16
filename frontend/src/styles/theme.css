@@ -1,149 +1,94 @@
-/* =========================================
-   Placid Academy Theme Tokens (Light/Dark)
-   Drop-in theme.css
-   ========================================= */
+/* =========================================================================
+   Placid Academy brand theme
 
-/* ---------- LIGHT MODE TOKENS ---------- */
-/* Covers: explicit light + default when not dark */
-html[data-theme="light"],
-body[data-theme="light"],
-html:not([data-theme="dark"]),
-body:not([data-theme="dark"]) {
-  --pa-bg: #f9fafb;
-  --pa-bg-2: #ffffff;
+   This file overrides frappe-ui's semantic design tokens rather than styling
+   components. Every colour in the app resolves through those tokens - roughly
+   840 usages across 172 components against ~32 hardcoded values - so brand
+   lives here and nowhere else.
 
-  --pa-surface: #ffffff;
-  --pa-surface-2: #f3f4f6;
+   Brand colours are sampled from the logo, not approximated:
+     #315D54  deep pine  - the wordmark and the dark parts of the mark
+     #6AC3AF  mint       - the circular mark
+   ========================================================================= */
 
-  --pa-border: rgba(0, 0, 0, 0.10);
+:root {
+	--pa-pine: #315d54;
+	--pa-mint: #6ac3af;
 
-  --pa-text: #111827;        /* main text */
-  --pa-text-muted: #374151;  /* secondary */
-  --pa-text-dim: #6b7280;    /* subtle */
+	/* Solid buttons, tooltips and the progress-bar fill all resolve to the dark
+	   end of frappe-ui's neutral surface ramp: rest on gray-7, hover on gray-6,
+	   active on gray-5. Repurposing those three levels is what turns every solid
+	   button in the app pine at once.
 
-  --pa-accent: #f4c84c;      /* yellow */
-  --pa-accent-2: #2e8c78;    /* green */
+	   This is safe precisely here and would not be a few levels down: gray-5, -6
+	   and -7 are referenced 0, 0 and 3 times by this app's own components, while
+	   gray-2 alone is referenced 91 times. The surfaces you actually read text
+	   off stay neutral; only the deliberately-dark blocks pick up brand. */
+	--surface-gray-7: var(--pa-pine); /* rest   - 7.4:1 under white text */
+	--surface-gray-6: #3c7166; /* hover  - 5.6:1 */
+	--surface-gray-5: #43806f; /* active - 4.6:1 */
 
-  --pa-shadow: 0 20px 40px rgba(0,0,0,0.08);
-  --pa-shadow-soft: 0 12px 24px rgba(0,0,0,0.06);
+	/* Sidebar active row. Was #FFFFFF, which read as "no state at all" against a
+	   near-white sidebar; a mint wash is the cheapest way to make the current
+	   page findable. */
+	--surface-selected: #e6f4f0;
 
-  --pa-ring: 0 0 0 3px rgba(244,200,76,0.35);
+	/* Sidebar background - a pine-tinted off-white rather than neutral #F8F8F8.
+	   Deliberately close to imperceptible on its own; it exists so the sidebar
+	   separates from a white page body without needing a heavier border. */
+	--surface-menu-bar: #f4f8f7;
+
+	/* Was #73BBF6, a mid blue that belonged to no part of this brand. */
+	--ink-blue-link: #2b6e60; /* 6.0:1 on white */
 }
 
-/* ---------- DARK MODE TOKENS ---------- */
-/* Covers: explicit dark + possible .dark class */
-html[data-theme="dark"],
-body[data-theme="dark"],
-html.dark,
-body.dark {
-  --pa-bg: #0f1f14;
-  --pa-bg-2: #0b1510;
+[data-theme='dark'] {
+	/* Dark mode inverts the ramp: the solid button becomes a light block carrying
+	   dark text, because --ink-white flips to #0F0F0F here. Pine is built for
+	   white text - under dark text it collapses to about 1.7:1 - so dark mode
+	   takes the mint end of the brand instead, where the same dark text sits at
+	   9.1:1. Same two brand colours, opposite roles. */
+	--surface-gray-7: var(--pa-mint); /* rest   - 9.1:1 under #0F0F0F text */
+	--surface-gray-6: #58b39e; /* hover  - 7.6:1 */
+	--surface-gray-5: #489e8a; /* active - 5.9:1 */
 
-  --pa-surface: rgba(255,255,255,0.06);
-  --pa-surface-2: rgba(255,255,255,0.10);
+	--surface-selected: #1e3f38;
+	--surface-menu-bar: #0d1512;
 
-  --pa-border: rgba(255,255,255,0.12);
-
-  --pa-text: rgba(255,255,255,0.92);
-  --pa-text-muted: rgba(255,255,255,0.72);
-  --pa-text-dim: rgba(255,255,255,0.55);
-
-  --pa-accent: #f4c84c;
-  --pa-accent-2: #2e8c78;
-
-  --pa-shadow: 0 24px 60px rgba(0,0,0,0.45);
-  --pa-shadow-soft: 0 18px 40px rgba(0,0,0,0.30);
-
-  --pa-ring: 0 0 0 3px rgba(244,200,76,0.22);
+	--ink-blue-link: #7fcebc;
 }
 
-/* =========================================
-   Base application of tokens
-   (safe, minimal, won’t break layout)
-   ========================================= */
+/* -------------------------------------------------------------------------
+   Page ground
 
-html, body {
-  background: var(--pa-bg);
-  color: var(--pa-text);
-}
-
-/* Links (don’t force everything) */
-a {
-  color: inherit;
-}
-a:hover {
-  color: var(--pa-accent-2);
+   frappe-ui styles no background onto body at all - it only sets margin and
+   line-height - so without this the page falls back to transparent and dark
+   mode renders on white. Pointed at --surface-white so it flips with the
+   theme, and so cards on --surface-cards layer correctly above it in dark.
+   ------------------------------------------------------------------------- */
+html,
+body {
+	background: var(--surface-white);
+	color: var(--ink-gray-9);
 }
 
-/* Generic “card/surface” feel for common wrappers */
-.card,
-.page-card,
-.section-box,
-.surface,
-[data-surface="true"] {
-  background: var(--pa-surface);
-  border: 1px solid var(--pa-border);
-  box-shadow: var(--pa-shadow-soft);
-  border-radius: 14px;
-}
+/* -------------------------------------------------------------------------
+   What used to be here
 
-/* Inputs */
-input,
-select,
-textarea {
-  background: var(--pa-surface);
-  color: var(--pa-text);
-  border: 1px solid var(--pa-border);
-  border-radius: 10px;
-}
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  box-shadow: var(--pa-ring);
-  border-color: color-mix(in srgb, var(--pa-accent) 70%, transparent);
-}
+   The previous version of this file defined a parallel --pa-* token system and
+   styled .card, .page-card, .section-box, .surface, .btn-primary,
+   .btn-secondary, .text-muted and .text-dim. None of those eight class names
+   appears in any of the 172 components - the app builds entirely from frappe-ui
+   components and Tailwind utilities - so all of it was dead.
 
-/* Primary button accent */
-.btn-primary,
-button.btn-primary,
-.button-primary {
-  background: var(--pa-accent) !important;
-  border: none !important;
-  color: #1f2937 !important;
-  font-weight: 700;
-  border-radius: 999px;
-}
+   Two rules in it were not dead and are deliberately gone rather than ported:
 
-/* Secondary-ish button */
-.btn-secondary,
-.button-secondary {
-  background: var(--pa-surface-2);
-  border: 1px solid var(--pa-border);
-  color: var(--pa-text);
-  border-radius: 999px;
-}
+   - Bare `input, select, textarea` selectors forcing a 10px radius, a custom
+     border and a yellow focus ring. These outrank frappe-ui's own input styling
+     by specificity, so every field in the app was rendering half in one design
+     system and half in the other. Removing them hands inputs back to frappe-ui.
 
-/* Subtle text helpers (optional) */
-.text-muted { color: var(--pa-text-muted) !important; }
-.text-dim   { color: var(--pa-text-dim) !important; }
-
-/* =========================================
-   Dark-mode only background flair
-   (prevents light mode looking weird)
-   ========================================= */
-html[data-theme="dark"] body,
-html.dark body {
-  background-image:
-    radial-gradient(1200px 700px at 20% 10%, rgba(46,140,120,0.18), rgba(0,0,0,0) 55%),
-    radial-gradient(900px 600px at 85% 15%, rgba(244,200,76,0.10), rgba(0,0,0,0) 60%),
-    linear-gradient(to bottom, rgba(10,12,12,0.92), rgba(10,12,12,0.92));
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-attachment: fixed;
-}
-
-html[data-theme="light"] body,
-html:not([data-theme="dark"]) body {
-  color: var(--pa-text) !important;
-}
+   - A decorative radial-gradient wash on the dark-mode body. Dropped rather
+     than recoloured; the brand reads better applied to things the user acts on
+     than sprayed behind them.
+   ------------------------------------------------------------------------- */

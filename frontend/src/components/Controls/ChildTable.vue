@@ -27,7 +27,7 @@
 					<input
 						v-if="showKey(key)"
 						v-model="row[key]"
-						class="py-1.5 px-2 border-none focus:ring-0 focus:border focus:border-gray-300 focus:bg-surface-gray-2 rounded-md text-sm focus:outline-none"
+						class="py-1.5 px-2 border-none focus:ring-0 focus:border focus:border-outline-gray-3 focus:bg-surface-gray-2 rounded-md text-sm focus:outline-none"
 					/>
 				</template>
 

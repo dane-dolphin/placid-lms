@@ -16,7 +16,7 @@
 				<tbody>
 					<tr
 						v-for="row in rows"
-						class="bg-white dark:bg-gray-800 dark:border-gray-700 border-gray-200"
+						class="bg-surface-white border-outline-gray-2"
 					>
 						<td class="px-6 py-2">
 							<FormControl

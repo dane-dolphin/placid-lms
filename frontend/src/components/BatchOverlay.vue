@@ -2,7 +2,7 @@
 	<div v-if="batch.data" class="border-2 rounded-md p-5 lg:w-72">
 		<div
 			v-if="batch.data.seat_count && seats_left > 0"
-			class="text-sm bg-green-100 text-green-700 px-2 py-1 rounded-md"
+			class="text-sm bg-surface-green-2 text-ink-green-3 px-2 py-1 rounded-md"
 			:class="
 				batch.data.amount || batch.data.courses.length
 					? 'float-right'
@@ -19,7 +19,7 @@
 		</div>
 		<div
 			v-else-if="batch.data.seat_count && seats_left <= 0"
-			class="text-xs bg-red-100 text-red-700 float-right px-2 py-0.5 rounded-md"
+			class="text-xs bg-surface-red-2 text-ink-red-3 float-right px-2 py-0.5 rounded-md"
 		>
 			{{ __('Sold Out') }}
 		</div>

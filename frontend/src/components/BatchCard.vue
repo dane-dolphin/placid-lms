@@ -8,7 +8,7 @@
 		</div>
 		<div
 			v-if="batch.seat_count && batch.seats_left > 0"
-			class="text-xs bg-green-100 text-green-700 self-start px-2 py-0.5 rounded-md"
+			class="text-xs bg-surface-green-2 text-ink-green-3 self-start px-2 py-0.5 rounded-md"
 		>
 			{{ batch.seats_left }}
 			<span v-if="batch.seats_left > 1">
@@ -20,7 +20,7 @@
 		</div>
 		<div
 			v-else-if="batch.seat_count && batch.seats_left <= 0"
-			class="text-xs bg-red-100 text-red-700 self-start px-2 py-0.5 rounded-md"
+			class="text-xs bg-surface-red-2 text-ink-red-3 self-start px-2 py-0.5 rounded-md"
 		>
 			{{ __('Sold Out') }}
 		</div>

@@ -142,7 +142,7 @@
 													/>
 													<Check
 														v-if="lesson.is_complete && showProgress"
-														class="h-4 w-4 text-green-700 ml-2"
+														class="h-4 w-4 text-ink-green-3 ml-2"
 													/>
 												</div>
 											</router-link>
