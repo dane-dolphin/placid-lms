@@ -257,9 +257,9 @@ const { brand } = sessionStore()
 const tabIndex = ref(0)
 const readOnlyMode = window.read_only_mode
 
-/* Order matters here: Course-Locks sits directly after Dashboard because it is
-   what a facilitator opens most often, and the two conversation tabs are pushed
-   to the end so the day-to-day management tabs are not split apart by them. */
+/* Order matters here: the batch's own contents (courses, students) come first,
+   then the tools that act on them, and the two conversation tabs are pushed to
+   the end so the day-to-day management tabs are not split apart by them. */
 const tabs = computed(() => {
 	let batchTabs = []
 	batchTabs.push({
@@ -267,22 +267,22 @@ const tabs = computed(() => {
 		icon: LayoutDashboard,
 	})
 
-	if (isAdmin.value) {
-		batchTabs.push({
-			label: 'Course-Locks',
-			icon: Lock,
-		})
-
-		batchTabs.push({
-			label: 'Students',
-			icon: ClipboardPen,
-		})
-	}
-
 	batchTabs.push({
 		label: 'Courses',
 		icon: BookOpen,
 	})
+
+	if (isAdmin.value) {
+		batchTabs.push({
+			label: 'Students',
+			icon: ClipboardPen,
+		})
+
+		batchTabs.push({
+			label: 'Course-Locks',
+			icon: Lock,
+		})
+	}
 
 	// batchTabs.push({
 	// 	label: 'Classes',
