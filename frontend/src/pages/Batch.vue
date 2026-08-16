@@ -30,7 +30,7 @@
 					v-model="tabIndex"
 					as="div"
 					:tabs="tabs"
-					tablistClass="overflow-y-hidden bg-surface-white"
+					tablistClass="pa-scroll overflow-y-hidden bg-surface-white"
 				>
 					<template #tab="{ tab, selected }" class="overflow-x-hidden">
 						<div>

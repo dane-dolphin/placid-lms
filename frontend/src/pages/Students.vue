@@ -28,7 +28,7 @@
 
 		<div
 			v-else-if="sortedStudents.length"
-			class="pa-enter rounded-md border overflow-x-auto mb-10"
+			class="pa-enter pa-scroll rounded-md border overflow-x-auto mb-10"
 		>
 			<table class="w-full text-base">
 				<thead>

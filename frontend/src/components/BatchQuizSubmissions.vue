@@ -152,7 +152,7 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
         <div class="text-xs text-ink-gray-5 mb-1">{{ __('Course') }}</div>
         <select
           v-model="courseName"
-          class="border rounded px-2 py-1 text-sm w-[360px]"
+          class="border border-outline-gray-2 bg-surface-white text-ink-gray-9 rounded px-2 py-1 text-sm w-[360px] focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
         >
           <option value="" disabled>{{ __('Select course') }}</option>
           <option

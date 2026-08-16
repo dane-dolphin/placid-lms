@@ -12,8 +12,23 @@
    ========================================================================= */
 
 :root {
+	/* Tells the browser which scheme the page is in. Without it, Chrome renders
+	   native controls - <select> popups, scrollbars, date pickers - from the OS
+	   preference instead, which is why the dropdown list came up charcoal on a
+	   light page and washed-out white in dark mode. Nothing in CSS can restyle a
+	   native popup; declaring the scheme is the only lever. */
+	color-scheme: light;
+
 	--pa-pine: #315d54;
 	--pa-mint: #6ac3af;
+
+	/* Accent. Pine and mint are both cool, so nothing in the palette could draw
+	   the eye - a gold is the warm counterpoint that gives the interface its pop,
+	   and it already agrees with the gold used on star ratings.
+
+	   Strictly an accent: at 2.2:1 against white it can never carry light text.
+	   It borders, underlines and marks; it does not become a button. */
+	--pa-gold: #e0a32e;
 
 	/* Application chrome. Three tints of the same sage, deepest on the sidebar
 	   and lightest on the page, so the frame recedes behind the content instead
@@ -48,6 +63,11 @@
 }
 
 [data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Lifted slightly so it holds up against dark surfaces. */
+	--pa-gold: #f0b845;
+
 	/* Dark mode inverts the ramp: the solid button becomes a light block carrying
 	   dark text, because --ink-white flips to #0F0F0F here. Pine is built for
 	   white text - under dark text it collapses to about 1.7:1 - so dark mode
@@ -157,7 +177,7 @@ header.sticky {
    colouring a zero-width border draws nothing. */
 .pa-card:hover,
 .pa-card:hover > * {
-	border-color: var(--pa-mint);
+	border-color: var(--pa-gold);
 }
 
 /* Statistic tiles on the batch dashboard. Same language as the cards, but they
@@ -171,7 +191,7 @@ header.sticky {
 
 .pa-stat:hover {
 	background: var(--surface-white);
-	border-color: var(--pa-mint) !important;
+	border-color: var(--pa-gold) !important;
 }
 
 /* Data tables. The header takes the sage wash; rows light up on hover with a
@@ -201,12 +221,52 @@ header.sticky {
 }
 
 .pa-row:hover > :first-child {
-	box-shadow: inset 3px 0 0 0 var(--pa-mint);
+	box-shadow: inset 3px 0 0 0 var(--pa-gold);
 }
 
 /* Sortable column headers. */
 .pa-sort {
 	transition: color var(--pa-fast) var(--pa-ease);
+}
+
+/* -------------------------------------------------------------------------
+   Scrollable strips
+
+   A faint rail at rest so the region reads as scrollable at all, going gold
+   once the pointer is anywhere over the strip. The overflowing tab bar was the
+   case that prompted this: the scrollbar was there, but nothing suggested the
+   row continued past the edge.
+
+   Both syntaxes are needed - the standard properties cover Firefox, the
+   ::-webkit- pseudo-elements cover Chrome and Safari, and neither engine reads
+   the other's.
+   ------------------------------------------------------------------------- */
+.pa-scroll {
+	scrollbar-width: thin;
+	scrollbar-color: var(--pa-hairline) transparent;
+}
+
+.pa-scroll:hover {
+	scrollbar-color: var(--pa-gold) transparent;
+}
+
+.pa-scroll::-webkit-scrollbar {
+	height: 8px;
+	width: 8px;
+}
+
+.pa-scroll::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.pa-scroll::-webkit-scrollbar-thumb {
+	background: var(--pa-hairline);
+	border-radius: 999px;
+	transition: background var(--pa-fast) var(--pa-ease);
+}
+
+.pa-scroll:hover::-webkit-scrollbar-thumb {
+	background: var(--pa-gold);
 }
 
 /* Content arriving. Deliberately only on containers, never per-row: a 45-row

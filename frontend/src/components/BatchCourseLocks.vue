@@ -8,7 +8,7 @@
       <div class="flex items-center gap-2">
         <select
           v-model="courseName"
-          class="border rounded px-2 py-1 text-sm w-[360px]"
+          class="border border-outline-gray-2 bg-surface-white text-ink-gray-9 rounded px-2 py-1 text-sm w-[360px] focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
         >
           <option value="" disabled>{{ __('Select course') }}</option>
           <option
@@ -20,13 +20,14 @@
           </option>
         </select>
 
-        <button
-          class="border rounded px-3 py-1 text-sm"
+        <Button
+          variant="solid"
           :disabled="!isDirty || saving"
+          :loading="saving"
           @click="saveAll"
         >
           {{ saving ? __('Saving...') : __('Save') }}
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -79,7 +80,7 @@
 </template>
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { createResource, toast } from 'frappe-ui'
+import { Button, createResource, toast } from 'frappe-ui'
 
 const props = defineProps({
   batch: { type: Object, required: true },
