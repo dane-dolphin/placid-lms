@@ -6,19 +6,13 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <select
-          v-model="courseName"
-          class="border border-outline-gray-2 bg-surface-white text-ink-gray-9 rounded px-2 py-1 text-sm w-[360px] focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
-        >
-          <option value="" disabled>{{ __('Select course') }}</option>
-          <option
-            v-for="c in courseOptions"
-            :key="c.value"
-            :value="c.value"
-          >
-            {{ c.label }}
-          </option>
-        </select>
+        <Autocomplete
+          class="w-[360px]"
+          :modelValue="courseName"
+          :options="courseOptions"
+          :placeholder="__('Select course')"
+          @update:modelValue="(opt) => (courseName = opt?.value || '')"
+        />
 
         <Button
           variant="solid"
@@ -60,8 +54,9 @@
 
           <input
             type="date"
-            class="border rounded px-2 py-1 text-sm w-[160px]
-                  text-ink-gray-5
+            class="border border-outline-gray-2 bg-surface-white rounded px-2 py-1 text-sm w-[160px]
+                  text-ink-gray-5 focus:outline-none
+                  focus-visible:ring-2 focus-visible:ring-outline-gray-3
                   focus:text-ink-gray-9"
             :class="{
               'text-ink-gray-9': draftByLesson[l.name]?.available_from
@@ -81,6 +76,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { Button, createResource, toast } from 'frappe-ui'
+import Autocomplete from '@/components/Controls/Autocomplete.vue'
 
 const props = defineProps({
   batch: { type: Object, required: true },

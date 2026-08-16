@@ -22,14 +22,6 @@
 	--pa-pine: #315d54;
 	--pa-mint: #6ac3af;
 
-	/* Accent. Pine and mint are both cool, so nothing in the palette could draw
-	   the eye - a gold is the warm counterpoint that gives the interface its pop,
-	   and it already agrees with the gold used on star ratings.
-
-	   Strictly an accent: at 2.2:1 against white it can never carry light text.
-	   It borders, underlines and marks; it does not become a button. */
-	--pa-gold: #e0a32e;
-
 	/* Application chrome. Three tints of the same sage, deepest on the sidebar
 	   and lightest on the page, so the frame recedes behind the content instead
 	   of competing with it. */
@@ -37,6 +29,7 @@
 	--pa-header: #edf5f2;
 	--pa-hairline: #cbe1d9; /* green-tinted rule between chrome and content */
 	--pa-wash: #f1f8f5; /* table headers, row hover */
+	--pa-scroll-rest: #a9cfc3; /* scrollbar thumb, idle - see .pa-scroll */
 
 	/* Solid buttons, tooltips and the progress-bar fill all resolve to the dark
 	   end of frappe-ui's neutral surface ramp: rest on gray-7, hover on gray-6,
@@ -65,9 +58,6 @@
 [data-theme='dark'] {
 	color-scheme: dark;
 
-	/* Lifted slightly so it holds up against dark surfaces. */
-	--pa-gold: #f0b845;
-
 	/* Dark mode inverts the ramp: the solid button becomes a light block carrying
 	   dark text, because --ink-white flips to #0F0F0F here. Pine is built for
 	   white text - under dark text it collapses to about 1.7:1 - so dark mode
@@ -81,6 +71,7 @@
 	--pa-header: #0d1a16;
 	--pa-hairline: #1f352e;
 	--pa-wash: #13221d;
+	--pa-scroll-rest: #3a6156;
 
 	--surface-selected: #1e3f38;
 	--surface-menu-bar: var(--pa-sidebar);
@@ -177,7 +168,7 @@ header.sticky {
    colouring a zero-width border draws nothing. */
 .pa-card:hover,
 .pa-card:hover > * {
-	border-color: var(--pa-gold);
+	border-color: var(--pa-mint);
 }
 
 /* Statistic tiles on the batch dashboard. Same language as the cards, but they
@@ -191,7 +182,7 @@ header.sticky {
 
 .pa-stat:hover {
 	background: var(--surface-white);
-	border-color: var(--pa-gold) !important;
+	border-color: var(--pa-mint) !important;
 }
 
 /* Data tables. The header takes the sage wash; rows light up on hover with a
@@ -221,7 +212,7 @@ header.sticky {
 }
 
 .pa-row:hover > :first-child {
-	box-shadow: inset 3px 0 0 0 var(--pa-gold);
+	box-shadow: inset 3px 0 0 0 var(--pa-mint);
 }
 
 /* Sortable column headers. */
@@ -243,13 +234,20 @@ header.sticky {
    ------------------------------------------------------------------------- */
 .pa-scroll {
 	scrollbar-width: thin;
-	scrollbar-color: var(--pa-hairline) transparent;
+	scrollbar-color: var(--pa-scroll-rest) transparent;
 }
 
 .pa-scroll:hover {
-	scrollbar-color: var(--pa-gold) transparent;
+	scrollbar-color: var(--pa-mint) transparent;
 }
 
+/* Declaring ::-webkit-scrollbar at all is what opts this element out of the
+   overlay scrollbars macOS and Chrome use by default - the kind that fade out a
+   moment after you stop scrolling. With an explicit size the browser falls back
+   to a classic scrollbar, which stays on screen for as long as the content
+   actually overflows and disappears on its own when it does not. That is the
+   whole point here: the tab row needs to advertise that it continues offscreen
+   before anyone thinks to drag it. */
 .pa-scroll::-webkit-scrollbar {
 	height: 8px;
 	width: 8px;
@@ -259,14 +257,17 @@ header.sticky {
 	background: transparent;
 }
 
+/* Idle state is a muted mint rather than the hairline - the hairline was chosen
+   to be nearly invisible, which is wrong for something whose job is to be
+   noticed. */
 .pa-scroll::-webkit-scrollbar-thumb {
-	background: var(--pa-hairline);
+	background: var(--pa-scroll-rest);
 	border-radius: 999px;
 	transition: background var(--pa-fast) var(--pa-ease);
 }
 
 .pa-scroll:hover::-webkit-scrollbar-thumb {
-	background: var(--pa-gold);
+	background: var(--pa-mint);
 }
 
 /* Content arriving. Deliberately only on containers, never per-row: a 45-row

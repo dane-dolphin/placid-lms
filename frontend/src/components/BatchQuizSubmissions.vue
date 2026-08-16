@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import { createResource } from 'frappe-ui'
+import Autocomplete from '@/components/Controls/Autocomplete.vue'
 
 const props = defineProps({
   batch: { type: Object, required: true },
@@ -150,19 +151,13 @@ onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
       <!-- Course selector (exactly your pattern) -->
       <div class="min-h-[74px]">
         <div class="text-xs text-ink-gray-5 mb-1">{{ __('Course') }}</div>
-        <select
-          v-model="courseName"
-          class="border border-outline-gray-2 bg-surface-white text-ink-gray-9 rounded px-2 py-1 text-sm w-[360px] focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
-        >
-          <option value="" disabled>{{ __('Select course') }}</option>
-          <option
-            v-for="c in courseOptions"
-            :key="c.value"
-            :value="c.value"
-          >
-            {{ c.label }}
-          </option>
-        </select>
+        <Autocomplete
+          class="w-[360px]"
+          :modelValue="courseName"
+          :options="courseOptions"
+          :placeholder="__('Select course')"
+          @update:modelValue="(opt) => (courseName = opt?.value || '')"
+        />
       </div>
 
       <!-- Quiz searchable dropdown -->
