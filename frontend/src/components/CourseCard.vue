@@ -1,7 +1,7 @@
 <template>
 	<div
 		v-if="course.title"
-		class="flex flex-col h-full rounded-md overflow-auto text-ink-gray-9"
+		class="pa-card flex flex-col h-full rounded-md overflow-auto text-ink-gray-9"
 		style="min-height: 350px"
 	>
 		<div

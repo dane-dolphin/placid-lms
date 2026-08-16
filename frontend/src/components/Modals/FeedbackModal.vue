@@ -21,7 +21,7 @@
 					}"
 				>
 					<ListHeader
-						class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+						class="mb-2 grid items-center space-x-4 rounded pa-table-head p-2"
 					></ListHeader>
 					<ListRows>
 						<ListRow

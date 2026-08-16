@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="flex flex-col h-full rounded-md overflow-hidden text-ink-gray-9 border-2 cursor-pointer transition hover:shadow-md"
+		class="pa-card flex flex-col h-full rounded-md overflow-hidden text-ink-gray-9 border-2 cursor-pointer"
 	>
 		<div
 			class="w-full h-[120px] bg-cover bg-center bg-no-repeat flex items-center justify-center"

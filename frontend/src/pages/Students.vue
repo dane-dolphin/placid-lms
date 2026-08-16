@@ -28,15 +28,15 @@
 
 		<div
 			v-else-if="sortedStudents.length"
-			class="rounded-md border overflow-x-auto mb-10"
+			class="pa-enter rounded-md border overflow-x-auto mb-10"
 		>
 			<table class="w-full text-base">
 				<thead>
-					<tr class="bg-surface-gray-2 text-ink-gray-7">
+					<tr class="pa-table-head text-ink-gray-7">
 						<th
 							v-for="column in studentColumns"
 							:key="column.key"
-							class="text-left font-medium px-4 py-2.5 whitespace-nowrap cursor-pointer select-none hover:text-ink-gray-9"
+							class="pa-sort text-left font-medium px-4 py-2.5 whitespace-nowrap cursor-pointer select-none hover:text-ink-gray-9"
 							@click="sortBy(column.key)"
 						>
 							<span class="inline-flex items-center gap-1">
@@ -61,7 +61,7 @@
 					<tr
 						v-for="student in sortedStudents"
 						:key="student.email"
-						class="border-t"
+						class="pa-row border-t"
 					>
 						<td class="px-4 py-2.5 text-ink-gray-9">
 							{{ student.full_name || __('Not registered yet') }}
@@ -96,7 +96,7 @@
 			<div
 				v-for="invite in invites.data"
 				:key="invite.name"
-				class="flex flex-col gap-2 border-b last:border-b-0 p-4 sm:flex-row sm:items-center sm:justify-between"
+				class="pa-row flex flex-col gap-2 border-b last:border-b-0 p-4 sm:flex-row sm:items-center sm:justify-between"
 			>
 				<div class="min-w-0">
 					<div class="text-base text-ink-gray-9 truncate">

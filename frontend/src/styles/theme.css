@@ -15,6 +15,14 @@
 	--pa-pine: #315d54;
 	--pa-mint: #6ac3af;
 
+	/* Application chrome. Three tints of the same sage, deepest on the sidebar
+	   and lightest on the page, so the frame recedes behind the content instead
+	   of competing with it. */
+	--pa-sidebar: #e3f0eb;
+	--pa-header: #edf5f2;
+	--pa-hairline: #cbe1d9; /* green-tinted rule between chrome and content */
+	--pa-wash: #f1f8f5; /* table headers, row hover */
+
 	/* Solid buttons, tooltips and the progress-bar fill all resolve to the dark
 	   end of frappe-ui's neutral surface ramp: rest on gray-7, hover on gray-6,
 	   active on gray-5. Repurposing those three levels is what turns every solid
@@ -28,15 +36,12 @@
 	--surface-gray-6: #3c7166; /* hover  - 5.6:1 */
 	--surface-gray-5: #43806f; /* active - 4.6:1 */
 
-	/* Sidebar active row. Was #FFFFFF, which read as "no state at all" against a
-	   near-white sidebar; a mint wash is the cheapest way to make the current
-	   page findable. */
-	--surface-selected: #e6f4f0;
+	/* Sidebar active row. White rather than a tint: now that the sidebar itself
+	   is sage, the active link reads as a card lifted off the panel - which is
+	   far more locatable at a glance than a slightly-different green would be. */
+	--surface-selected: #ffffff;
 
-	/* Sidebar background - a pine-tinted off-white rather than neutral #F8F8F8.
-	   Deliberately close to imperceptible on its own; it exists so the sidebar
-	   separates from a white page body without needing a heavier border. */
-	--surface-menu-bar: #f4f8f7;
+	--surface-menu-bar: var(--pa-sidebar);
 
 	/* Was #73BBF6, a mid blue that belonged to no part of this brand. */
 	--ink-blue-link: #2b6e60; /* 6.0:1 on white */
@@ -52,8 +57,13 @@
 	--surface-gray-6: #58b39e; /* hover  - 7.6:1 */
 	--surface-gray-5: #489e8a; /* active - 5.9:1 */
 
+	--pa-sidebar: #10201b;
+	--pa-header: #0d1a16;
+	--pa-hairline: #1f352e;
+	--pa-wash: #13221d;
+
 	--surface-selected: #1e3f38;
-	--surface-menu-bar: #0d1512;
+	--surface-menu-bar: var(--pa-sidebar);
 
 	--ink-blue-link: #7fcebc;
 }
@@ -92,3 +102,146 @@ body {
      than recoloured; the brand reads better applied to things the user acts on
      than sprayed behind them.
    ------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------
+   Page headers
+
+   All 35 <header> elements in the app carry `sticky` and `bg-surface-white`.
+   Tinting them from here rather than editing 35 files means they cannot drift
+   apart later, and `header.sticky` (0,1,1) outranks the `bg-surface-white`
+   utility (0,1,0) without needing !important.
+
+   A header that ever ships without `sticky` simply stays white rather than
+   breaking - the rule fails invisibly, not loudly.
+   ------------------------------------------------------------------------- */
+header.sticky {
+	background: var(--pa-header);
+	border-bottom-color: var(--pa-hairline);
+}
+
+/* The sidebar's own right-hand rule. Tailwind's `border-r` sets width only;
+   colour comes from the preflight `*` rule, which any class beats. */
+.bg-surface-menu-bar {
+	border-color: var(--pa-hairline);
+}
+
+/* -------------------------------------------------------------------------
+   Motion
+
+   One duration and one easing for everything, so separate components do not
+   each invent their own feel. 160ms is short enough to read as response rather
+   than animation.
+   ------------------------------------------------------------------------- */
+:root {
+	--pa-ease: cubic-bezier(0.4, 0, 0.2, 1);
+	--pa-fast: 160ms;
+}
+
+/* Cards - batches, courses, levels. The lift is 2px: enough to register as
+   "this is clickable", small enough not to reflow a grid visually. */
+.pa-card {
+	transition: transform var(--pa-fast) var(--pa-ease),
+		box-shadow var(--pa-fast) var(--pa-ease),
+		border-color var(--pa-fast) var(--pa-ease);
+}
+
+.pa-card:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 10px 24px -12px rgba(49, 93, 84, 0.45);
+}
+
+/* The border is tinted on the card and on its direct children, because the two
+   card layouts put it in different places: BatchCard and LevelCard border the
+   root, while CourseCard has no root border at all and instead borders its
+   image and body panels separately. Children with no border are unaffected -
+   colouring a zero-width border draws nothing. */
+.pa-card:hover,
+.pa-card:hover > * {
+	border-color: var(--pa-mint);
+}
+
+/* Statistic tiles on the batch dashboard. Same language as the cards, but they
+   are not navigable, so they gain colour on hover without the lift. */
+.pa-stat {
+	background: var(--pa-wash);
+	border-color: var(--pa-hairline) !important;
+	transition: background var(--pa-fast) var(--pa-ease),
+		border-color var(--pa-fast) var(--pa-ease);
+}
+
+.pa-stat:hover {
+	background: var(--surface-white);
+	border-color: var(--pa-mint) !important;
+}
+
+/* Data tables. The header takes the sage wash; rows light up on hover with a
+   mint bar down the leading edge, which tracks the eye across a wide row far
+   better than a background change alone. */
+.pa-table-head {
+	background: var(--pa-wash);
+}
+
+.pa-row {
+	transition: background var(--pa-fast) var(--pa-ease);
+}
+
+.pa-row:hover {
+	background: var(--pa-wash);
+}
+
+/* The leading accent bar is drawn on the row's first cell, not the row itself.
+   Tailwind's preflight sets `border-collapse: collapse` on every table, and
+   under collapsed borders a box-shadow on <tr> does not paint in most engines -
+   the bar would silently never appear. Cells paint it reliably either way, and
+   for the non-table rows that use .pa-row the first child is a plain div, where
+   it behaves the same. */
+.pa-row > :first-child {
+	box-shadow: inset 3px 0 0 0 transparent;
+	transition: box-shadow var(--pa-fast) var(--pa-ease);
+}
+
+.pa-row:hover > :first-child {
+	box-shadow: inset 3px 0 0 0 var(--pa-mint);
+}
+
+/* Sortable column headers. */
+.pa-sort {
+	transition: color var(--pa-fast) var(--pa-ease);
+}
+
+/* Content arriving. Deliberately only on containers, never per-row: a 45-row
+   staggered table is a page that cannot be read until it finishes. */
+.pa-enter {
+	animation: pa-enter var(--pa-fast) var(--pa-ease) both;
+}
+
+@keyframes pa-enter {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: none;
+	}
+}
+
+/* Honour the OS setting. Motion here is decorative without exception, so it is
+   all safe to drop - colour and state changes survive, movement does not. */
+@media (prefers-reduced-motion: reduce) {
+	.pa-card,
+	.pa-stat,
+	.pa-row,
+	.pa-row > :first-child,
+	.pa-sort {
+		transition: none;
+	}
+
+	.pa-card:hover {
+		transform: none;
+	}
+
+	.pa-enter {
+		animation: none;
+	}
+}

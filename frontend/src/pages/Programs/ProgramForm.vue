@@ -69,7 +69,7 @@
 						rowKey="name"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center space-x-4 rounded pa-table-head p-2"
 						>
 							<ListHeaderItem :item="item" v-for="item in courseColumns" />
 						</ListHeader>
@@ -143,7 +143,7 @@
 						rowKey="name"
 					>
 						<ListHeader
-							class="mb-2 grid items-center space-x-4 rounded bg-surface-gray-2 p-2"
+							class="mb-2 grid items-center space-x-4 rounded pa-table-head p-2"
 						>
 							<ListHeaderItem :item="item" v-for="item in memberColumns" />
 						</ListHeader>

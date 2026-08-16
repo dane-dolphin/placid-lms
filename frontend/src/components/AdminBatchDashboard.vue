@@ -7,12 +7,12 @@
 		</div>
 		<div class="grid grid-cols-2 md:grid-cols-4 gap-5 mb-8">
 			<NumberChart
-				class="border rounded-md"
+				class="pa-stat border rounded-md"
 				:config="{ title: __('Students'), value: students.data?.length || 0 }"
 			/>
 
 			<NumberChart
-				class="border rounded-md"
+				class="pa-stat border rounded-md"
 				:config="{
 					title: __('Certified'),
 					value: certificationCount.data || 0,
@@ -20,7 +20,7 @@
 			/>
 
 			<NumberChart
-				class="border rounded-md"
+				class="pa-stat border rounded-md"
 				:config="{
 					title: __('Courses'),
 					value: batch?.data?.courses?.length || 0,
@@ -28,7 +28,7 @@
 			/>
 
 			<NumberChart
-				class="border rounded-md"
+				class="pa-stat border rounded-md"
 				:config="{ title: __('Assessments'), value: assessmentCount || 0 }"
 			/>
 		</div>
