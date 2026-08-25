@@ -346,6 +346,32 @@ const addStudents = () => {
 	})
 }
 
+// Moderators only, unlike Students above: this creates accounts and hands out
+// roles, which is not something a facilitator running a batch should be doing.
+const addAddUsers = () => {
+	if (!isModerator.value) return
+
+	const addUsersLinkExists = sidebarLinks.value.some(
+		(link) => link.label === 'Add users'
+	)
+	if (addUsersLinkExists) return
+
+	// Placed after Students rather than at a fixed index, since how far down
+	// Students has ended up depends on which of the links above were added.
+	const studentsIndex = sidebarLinks.value.findIndex(
+		(link) => link.label === 'Students'
+	)
+	const insertAt =
+		studentsIndex === -1 ? sidebarLinks.value.length : studentsIndex + 1
+
+	sidebarLinks.value.splice(insertAt, 0, {
+		label: 'Add users',
+		icon: 'UserRoundPlus',
+		to: 'AddUsers',
+		activeFor: ['AddUsers'],
+	})
+}
+
 const addAssignments = () => {
 	if (!isInstructor.value && !isModerator.value) return
 
@@ -709,6 +735,7 @@ watch(userResource, () => {
 		addQuizzes()
 		addAssignments()
 		addStudents()
+		addAddUsers()
 		setUpOnboarding()
 	}
 })
