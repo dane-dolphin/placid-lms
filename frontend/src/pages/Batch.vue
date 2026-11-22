@@ -11,6 +11,16 @@
 				>
 					{{ __('Generate Certificates') }}
 				</Button>
+				<Button
+					v-if="isAdmin && !readOnlyMode && batch.data"
+					variant="solid"
+					@click="showInviteLink = true"
+				>
+					<template #prefix>
+						<QrCode class="h-4 w-4 stroke-1.5" />
+					</template>
+					{{ __('Invite') }}
+				</Button>
 				<Button v-if="canMakeAnnouncement()" @click="openAnnouncementModal()">
 					<span>
 						{{ __('Make an Announcement') }}
@@ -70,7 +80,11 @@
 								<AdminBatchDashboard :batch="batch" />
 							</div>
 							<div v-else-if="tab.label == 'Students'">
-								<BatchStudents :batch="batch" />
+								<BatchStudents
+									:batch="batch"
+									:key="studentsVersion"
+									@invite="showInviteLink = true"
+								/>
 							</div>
 							<!-- <div v-else-if="tab.label == 'Classes'">
 								<LiveClass
@@ -155,6 +169,17 @@
 				:batch="batch.data.name"
 				:students="batch.data.students"
 			/>
+			<BatchInviteLinkModal
+				v-model="showInviteLink"
+				:batch="batch.data.name"
+				:title="batch.data.title"
+				@invite-by-email="showInviteByEmail = true"
+			/>
+			<InviteStudentsModal
+				:batch="batch.data.name"
+				v-model="showInviteByEmail"
+				@invited="onInvited"
+			/>
 		</div>
 	</div>
 	<div v-else-if="!user.data?.name" class="">
@@ -169,7 +194,7 @@
 				<div v-if="user.data" class="mb-4 leading-6">
 					{{
 						__(
-							'You are not a member of this batch. Please checkout our upcoming batches.'
+							'You are not a member of this batch. Please checkout our upcoming batches.',
 						)
 					}}
 				</div>
@@ -227,6 +252,7 @@ import {
 	MessageCircle,
 	Globe,
 	ClipboardPen,
+	QrCode,
 } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import CourseInstructors from '@/components/CourseInstructors.vue'
@@ -239,6 +265,8 @@ import AdminBatchDashboard from '@/components/AdminBatchDashboard.vue'
 import Assessments from '@/components/Assessments.vue'
 import Announcements from '@/components/Annoucements.vue'
 import AnnouncementModal from '@/components/Modals/AnnouncementModal.vue'
+import BatchInviteLinkModal from '@/components/Modals/BatchInviteLinkModal.vue'
+import InviteStudentsModal from '@/components/Modals/InviteStudentsModal.vue'
 import Discussions from '@/components/Discussions.vue'
 import DateRange from '@/components/Common/DateRange.vue'
 import BulkCertificates from '@/components/Modals/BulkCertificates.vue'
@@ -251,6 +279,11 @@ import { Lock } from 'lucide-vue-next'
 const user = inject('$user')
 const showAnnouncementModal = ref(false)
 const openCertificateDialog = ref(false)
+const showInviteLink = ref(false)
+const showInviteByEmail = ref(false)
+// Bumped after an email invite so the Students tab, if open, re-fetches its
+// roster: inviting an address that already has an account enrols it at once.
+const studentsVersion = ref(0)
 const route = useRoute()
 const router = useRouter()
 const { brand } = sessionStore()
@@ -375,6 +408,11 @@ const redirectToLogin = () => {
 
 const openAnnouncementModal = () => {
 	showAnnouncementModal.value = true
+}
+
+const onInvited = () => {
+	studentsVersion.value++
+	batch.reload()
 }
 
 watch(tabIndex, () => {

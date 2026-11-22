@@ -11,11 +11,7 @@
 					</template>
 					{{ __('Add') }}
 				</Button>
-				<Button
-					v-if="!readOnlyMode"
-					variant="solid"
-					@click="showInviteModal = true"
-				>
+				<Button v-if="!readOnlyMode" variant="solid" @click="emit('invite')">
 					<template #prefix>
 						<UserPlus class="h-4 w-4" />
 					</template>
@@ -117,11 +113,6 @@
 		:student="selectedStudent"
 		v-model="showStudentProgressModal"
 	/>
-	<InviteStudentsModal
-		:batch="props.batch.data.name"
-		v-model="showInviteModal"
-		@invited="students.reload()"
-	/>
 </template>
 <script setup>
 import {
@@ -141,12 +132,10 @@ import {
 import { Plus, Trash2, UserPlus } from 'lucide-vue-next'
 import { ref } from 'vue'
 import StudentModal from '@/components/Modals/StudentModal.vue'
-import InviteStudentsModal from '@/components/Modals/InviteStudentsModal.vue'
 import ProgressBar from '@/components/ProgressBar.vue'
 import BatchStudentProgress from '@/components/Modals/BatchStudentProgress.vue'
 
 const showStudentModal = ref(false)
-const showInviteModal = ref(false)
 const showStudentProgressModal = ref(false)
 const selectedStudent = ref(null)
 const readOnlyMode = window.read_only_mode
@@ -157,6 +146,10 @@ const props = defineProps({
 		default: null,
 	},
 })
+
+// The invite modals live on the batch page, where they are reachable from every
+// tab; this button is just the Students tab's way of asking for them.
+const emit = defineEmits(['invite'])
 
 const students = createResource({
 	url: 'lms.lms.utils.get_batch_students',
@@ -229,7 +222,7 @@ const removeStudents = (selections, unselectAll) => {
 				toast.success(__('Students deleted successfully'))
 				unselectAll()
 			},
-		}
+		},
 	)
 }
 </script>

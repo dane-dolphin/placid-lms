@@ -92,7 +92,10 @@
 			{{ __('Loading...') }}
 		</div>
 
-		<div v-else-if="invites.data?.length" class="rounded-md border overflow-hidden">
+		<div
+			v-else-if="invites.data?.length"
+			class="rounded-md border overflow-hidden"
+		>
 			<div
 				v-for="invite in invites.data"
 				:key="invite.name"
@@ -112,8 +115,9 @@
 						{{ __(invite.status) }}
 					</Badge>
 
-					<!-- Only pending invites carry a link; once the account exists the
-					     password-setup email is the useful one, sent via Resend. -->
+					<!-- Only pending invites carry a link: it opens the registration form
+					     for a new student, or the batch picker for one who registered but
+					     has not joined yet. Resend emails the same link. -->
 					<Button
 						v-if="invite.invite_url"
 						variant="subtle"
@@ -170,14 +174,13 @@ import InviteStudentsModal from '@/components/Modals/InviteStudentsModal.vue'
 
 const { brand } = sessionStore()
 const showInviteModal = ref(false)
-// Accepted by default: an invite now provisions the account immediately, so it
-// reaches Accepted within the same request. Pending holds only the ones where
-// account creation failed, which is the exception rather than the waiting room.
-const currentStatus = ref('Accepted')
+// Pending by default: an invite waits here until the student opens their link,
+// creates their account and joins, so this is the list a facilitator chases.
+const currentStatus = ref('Pending')
 
 const statusTabs = [
-	{ label: 'Accepted' },
 	{ label: 'Pending' },
+	{ label: 'Accepted' },
 	{ label: 'Cancelled' },
 ]
 
@@ -244,7 +247,8 @@ const batchLabel = (invite) =>
 	(invite.batches || []).map((b) => b.title || b.name).join(', ')
 
 const statusTheme = (status) =>
-	({ Pending: 'orange', Accepted: 'green', Cancelled: 'gray' })[status] || 'gray'
+	({ Pending: 'orange', Accepted: 'green', Cancelled: 'gray' })[status] ||
+	'gray'
 
 const copyLink = async (invite) => {
 	if (!invite.invite_url) {
@@ -273,7 +277,9 @@ const resend = (invite) => {
 				toast.success(__('Invite resent'))
 			}
 		})
-		.catch((err) => toast.error(err.messages?.[0] || err.message || String(err)))
+		.catch((err) =>
+			toast.error(err.messages?.[0] || err.message || String(err)),
+		)
 }
 
 const revoke = (invite) => {
@@ -285,7 +291,9 @@ const revoke = (invite) => {
 			// enrolled in one of the caller's batches.
 			students.reload()
 		})
-		.catch((err) => toast.error(err.messages?.[0] || err.message || String(err)))
+		.catch((err) =>
+			toast.error(err.messages?.[0] || err.message || String(err)),
+		)
 }
 
 const breadcrumbs = computed(() => [

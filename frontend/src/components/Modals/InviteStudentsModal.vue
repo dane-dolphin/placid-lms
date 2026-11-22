@@ -28,7 +28,7 @@
 					<div class="mt-1 text-xs text-ink-gray-5">
 						{{
 							__(
-								'Separate with commas, spaces or new lines. Pasting a column from a spreadsheet works.'
+								'Separate with commas, spaces or new lines. Pasting a column from a spreadsheet works.',
 							)
 						}}
 					</div>
@@ -72,7 +72,6 @@
 				</div>
 			</div>
 		</template>
-
 	</Dialog>
 </template>
 
@@ -101,7 +100,7 @@ const result = ref(null)
 const sending = ref(false)
 
 const canSend = computed(
-	() => emails.value.trim().length > 0 && selectedBatches.value.length > 0
+	() => emails.value.trim().length > 0 && selectedBatches.value.length > 0,
 )
 
 const loadBatches = () => {
@@ -135,11 +134,13 @@ const resultLines = computed(() => {
 		if (list?.length) lines.push({ label, value: list.join(', ') })
 	}
 
-	add(__('Account created and enrolled'), r.invited)
+	add(__('Invite link sent to'), r.invited)
 	add(__('Enrolled (already had an account)'), r.enrolled)
 	add(__('Already enrolled'), r.already_enrolled)
-	add(__('Could not create an account for'), r.account_failed)
-	add(__('Could not send email to'), r.email_failed)
+	add(
+		__('Email failed - copy their link from the Students page'),
+		r.email_failed,
+	)
 	add(__('Not a valid address'), r.invalid)
 
 	return lines
@@ -164,13 +165,19 @@ const submit = () => {
 			result.value = data
 			emails.value = ''
 
-			const sent = (data.invited?.length || 0) + (data.enrolled?.length || 0)
-			if (sent) toast.success(__('{0} student(s) processed').format(sent))
+			if (data.invited?.length) {
+				toast.success(__('{0} invite link(s) sent').format(data.invited.length))
+			}
+			if (data.enrolled?.length) {
+				toast.success(
+					__('{0} existing student(s) enrolled').format(data.enrolled.length),
+				)
+			}
 			if (data.email_failed?.length) {
 				toast.warning(
 					__('{0} invite(s) were created but the email failed to send').format(
-						data.email_failed.length
-					)
+						data.email_failed.length,
+					),
 				)
 			}
 
