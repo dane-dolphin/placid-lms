@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { usersStore } from './stores/user'
 import { sessionStore } from './stores/session'
-import { useSettings } from './stores/settings'
 
 const routes = [
 	{
@@ -269,7 +268,6 @@ let router = createRouter({
 router.beforeEach(async (to, from, next) => {
 	const { userResource } = usersStore()
 	let { isLoggedIn } = sessionStore()
-	const { allowGuestAccess } = useSettings()
 
 	try {
 		if (isLoggedIn) {
@@ -279,14 +277,15 @@ router.beforeEach(async (to, from, next) => {
 		isLoggedIn = false
 	}
 
+	// Nothing in the app is for guests: a logged-out visitor is sent to the login
+	// page, which brings them back to where they were headed.
 	if (!isLoggedIn) {
-		if (to.name == 'Home') router.push({ name: 'Courses' })
-
-		await allowGuestAccess.promise
-		if (!allowGuestAccess.data) {
-			window.location.href = '/login'
-			return
-		}
+		const target = '/lms' + to.fullPath
+		window.location.href =
+			target == '/lms/' || target == '/lms'
+				? '/login'
+				: '/login?redirect-to=' + encodeURIComponent(target)
+		return
 	}
 	return next()
 })

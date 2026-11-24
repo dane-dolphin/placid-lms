@@ -1,36 +1,6 @@
 <template>
 	<div>
-		<div v-if="myCourses.data?.length" class="mt-10">
-			<div class="flex items-center justify-between mb-3">
-				<span class="font-semibold text-lg text-ink-gray-9">
-					{{
-						myCourses.data[0].membership
-							? __('My Courses')
-							: __('Our Popular Courses')
-					}}
-				</span>
-				<router-link
-					:to="{
-						name: 'Courses',
-					}"
-				>
-					<span class="flex items-center space-x-1 text-ink-gray-5 text-xs">
-						<span>
-							{{ __('See all') }}
-						</span>
-						<MoveRight class="size-3 stroke-1.5" />
-					</span>
-				</router-link>
-			</div>
-			<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-				<router-link
-					v-for="course in myCourses.data"
-					:to="{ name: 'CourseDetail', params: { courseName: course.name } }"
-				>
-					<CourseCard :course="course" />
-				</router-link>
-			</div>
-		</div>
+		<StudentBatchCourses class="mt-10" />
 
 		<div v-if="myBatches.data?.length" class="mt-10">
 			<div class="flex items-center justify-between mb-3">
@@ -149,7 +119,7 @@ import {
 	MoveRight,
 	Video,
 } from 'lucide-vue-next'
-import CourseCard from '@/components/CourseCard.vue'
+import StudentBatchCourses from '@/components/StudentBatchCourses.vue'
 import BatchCard from '@/components/BatchCard.vue'
 import UpcomingEvaluations from '@/components/UpcomingEvaluations.vue'
 
@@ -159,11 +129,6 @@ const user = inject<any>('$user')
 const props = defineProps<{
 	myLiveClasses: any
 }>()
-
-const myCourses = createResource({
-	url: 'lms.lms.utils.get_my_courses',
-	auto: true,
-})
 
 const myBatches = createResource({
 	url: 'lms.lms.utils.get_my_batches',

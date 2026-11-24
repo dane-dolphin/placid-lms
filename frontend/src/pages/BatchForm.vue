@@ -182,7 +182,7 @@ import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
-import { openSettings, getMetaInfo, updateMetaInfo, escapeHTML } from '@/utils'
+import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
 
 const router = useRouter()
 const user = inject('$user')
@@ -336,19 +336,7 @@ const editBatch = createResource({
 	},
 })
 
-const validateFields = () => {
-	Object.keys(batch).forEach((key) => {
-		if (
-			!['description', 'batch_details'].includes(key) &&
-			typeof batch[key] === 'string'
-		) {
-			batch[key] = escapeHTML(batch[key])
-		}
-	})
-}
-
 const saveBatch = () => {
-	validateFields()
 	if (batchDetail.data) {
 		editBatchDetails()
 	} else {

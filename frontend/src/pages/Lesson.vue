@@ -262,8 +262,9 @@
 							/>
 						</div>
 					</div>
+					<!-- A quiz is answered, not annotated or discussed: no notes, no community. -->
 					<div
-						v-if="lesson.data"
+						v-if="lesson.data && !hasQuiz"
 						class="mt-10 pb-20 pt-5 border-t px-5"
 						ref="discussionsContainer"
 					>
@@ -292,30 +293,12 @@
 					</div>
 				</div>
 			</div>
-			<div class="sticky top-10">
-				<div class="bg-surface-menu-bar py-5 px-2 border-b">
-					<div class="text-lg font-semibold text-ink-gray-9">
-						{{ lesson.data.course_title }}
-					</div>
-					<div
-						v-if="user && lesson.data.membership && showProgress"
-						class="text-sm mt-4 mb-2 text-ink-gray-5"
-					>
-						{{ Math.ceil(lessonProgress) }}% {{ __('completed') }}
-					</div>
-
-					<ProgressBar
-						v-if="user && lesson.data.membership && showProgress"
-						:progress="lessonProgress"
-					/>
-				</div>
-				<CourseOutline
-					:courseName="courseName"
-					:key="chapterNumber"
-					:getProgress="lesson.data.membership ? true : false"
-					:lessonProgress="lessonProgress"
-				/>
-			</div>
+			<LessonSidebar
+				:courseName="courseName"
+				:title="lesson.data.course_title"
+				:enrolled="lesson.data.membership ? true : false"
+				:progress="lessonProgress"
+			/>
 		</div>
 	</div>
 	<InlineLessonMenu
@@ -374,11 +357,10 @@ import { useSidebar } from '@/stores/sidebar'
 import EditorJS from '@editorjs/editorjs'
 import LessonContent from '@/components/LessonContent.vue'
 import CourseInstructors from '@/components/CourseInstructors.vue'
-import ProgressBar from '@/components/ProgressBar.vue'
 import Discussions from '@/components/Discussions.vue'
 import CertificationLinks from '@/components/CertificationLinks.vue'
 import VideoStatistics from '@/components/Modals/VideoStatistics.vue'
-import CourseOutline from '@/components/CourseOutline.vue'
+import LessonSidebar from '@/components/LessonSidebar.vue'
 import UserAvatar from '@/components/UserAvatar.vue'
 import Notes from '@/components/Notes/Notes.vue'
 import InlineLessonMenu from '@/components/Notes/InlineLessonMenu.vue'

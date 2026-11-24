@@ -76,7 +76,10 @@ def get_meta(app_path, title, favicon):
 			"description": description,
 		}
 
-	return meta
+	# These values are written into attributes and text of the page shell, whose
+	# template does not autoescape. Titles are stored exactly as typed (the forms
+	# no longer encode them on save), so they are escaped here, where they are used.
+	return frappe._dict({key: frappe.utils.escape_html(value or "") for key, value in meta.items()})
 
 
 def get_meta_from_document(app_path):

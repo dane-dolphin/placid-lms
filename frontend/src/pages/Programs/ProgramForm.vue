@@ -255,7 +255,7 @@ import {
 import { computed, ref, watch } from 'vue'
 import { Plus, Trash2, TrendingUp } from 'lucide-vue-next'
 import { Programs, Program } from '@/types/programs'
-import { escapeHTML, openSettings } from '@/utils'
+import { openSettings } from '@/utils'
 import Link from '@/components/Controls/Link.vue'
 import Draggable from 'vuedraggable'
 import ProgramProgressSummary from '@/pages/Programs/ProgramProgressSummary.vue'
@@ -363,7 +363,7 @@ const fetchMembers = () => {
 }
 
 const validateTitle = () => {
-	program.value.name = escapeHTML(program.value.name.trim())
+	program.value.name = program.value.name.trim()
 }
 
 const saveProgram = (close: () => void) => {

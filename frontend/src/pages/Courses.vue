@@ -18,7 +18,11 @@
 			</Button>
 		</router-link>
 	</header>
-	<div class="p-5 pb-10">
+	<!-- Students see only the courses of their own batches. -->
+	<div v-if="is_student" class="p-5 pb-10">
+		<StudentBatchCourses />
+	</div>
+	<div v-else class="p-5 pb-10">
 		<div
 			class="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:items-center justify-between mb-5"
 		>
@@ -127,6 +131,7 @@ import { canCreateCourse } from '@/utils'
 import CourseCard from '@/components/CourseCard.vue'
 import LevelCard from '@/components/LevelCard.vue'
 import EmptyState from '@/components/EmptyState.vue'
+import StudentBatchCourses from '@/components/StudentBatchCourses.vue'
 import router from '../router'
 
 // Sentinel for "skip the level screen and show everything". Distinct from null,
