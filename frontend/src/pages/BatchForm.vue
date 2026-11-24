@@ -65,6 +65,51 @@
 
 			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
 				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
+					{{ __('Parish and picture') }}
+				</div>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+					<div>
+						<FormControl
+							v-if="parishOptions.length > 1"
+							v-model="batch.parish"
+							type="select"
+							:options="parishOptions"
+							:label="__('Parish')"
+							:required="true"
+						/>
+						<!-- No parishes exist yet, so there is nothing to ask for. -->
+						<div v-else>
+							<label class="block text-sm text-ink-gray-5 mb-1">
+								{{ __('Parish') }}
+							</label>
+							<div
+								class="rounded bg-surface-gray-2 text-base text-ink-gray-6 py-1.5 px-2.5"
+							>
+								{{ __('No parishes have been added yet') }}
+							</div>
+						</div>
+						<p class="mt-1.5 text-sm leading-5 text-ink-gray-5">
+							{{
+								__(
+									'The parish this batch runs in. Batches are grouped by parish on the Batches page.',
+								)
+							}}
+						</p>
+					</div>
+					<ImagePicker
+						v-model="batch.image"
+						:label="__('Batch picture')"
+						:hint="
+							__(
+								'Shown on the batch card. Without one, the card shows the parish\'s cover picture.',
+							)
+						"
+						wide
+					/>
+				</div>
+			</div>
+			<div class="px-5 md:px-20 pb-5 space-y-5 border-b mb-5">
+				<div class="text-lg text-ink-gray-9 font-semibold mb-4">
 					{{ __('Settings') }}
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -182,6 +227,7 @@ import { capture } from '@/telemetry'
 import { useOnboarding } from 'frappe-ui/frappe'
 import { sessionStore } from '../stores/session'
 import MultiSelect from '@/components/Controls/MultiSelect.vue'
+import ImagePicker from '@/components/Controls/ImagePicker.vue'
 import { openSettings, getMetaInfo, updateMetaInfo } from '@/utils'
 
 const router = useRouter()
@@ -218,6 +264,9 @@ const batch = reactive({
 	end_time: DEFAULT_END_TIME,
 	timezone: '',
 	evaluation_end_date: '',
+	// Custom Fields from placid_drip: the card picture and the parish.
+	image: '',
+	parish: '',
 })
 
 const meta = reactive({
@@ -317,6 +366,8 @@ const batchDetail = createResource({
 		// the key to `batch` as false and saves that back over the batch's real
 		// value, silently switching the setting off on every edit.
 		batch.published = batch.published ? true : false
+		batch.image = batch.image || ''
+		batch.parish = batch.parish || ''
 	},
 })
 
@@ -336,7 +387,27 @@ const editBatch = createResource({
 	},
 })
 
+// The picker for `batch.parish`. A blank first entry so a new batch does not
+// silently take whichever parish happens to sort first.
+const parishes = createResource({
+	url: 'placid_drip.api.parishes.get_parishes',
+	auto: true,
+})
+
+const parishOptions = computed(() => [
+	{ label: __('Choose a parish'), value: '' },
+	...(parishes.data || []).map((parish) => ({
+		label: parish.organization_name,
+		value: parish.name,
+	})),
+])
+
 const saveBatch = () => {
+	// Asked for only once there is a parish to choose.
+	if (parishOptions.value.length > 1 && !batch.parish) {
+		toast.error(__('Please choose the parish this batch belongs to.'))
+		return
+	}
 	if (batchDetail.data) {
 		editBatchDetails()
 	} else {

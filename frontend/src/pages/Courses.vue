@@ -20,6 +20,12 @@
 	</header>
 	<!-- Students see only the courses of their own batches. -->
 	<div v-if="is_student" class="p-5 pb-10">
+		<div class="mb-6">
+			<h1 class="text-2xl font-semibold text-ink-gray-9">{{ __('My Courses') }}</h1>
+			<p class="mt-1.5 text-base text-ink-gray-7">
+				{{ __('The courses your batches are running.') }}
+			</p>
+		</div>
 		<StudentBatchCourses />
 	</div>
 	<div v-else class="p-5 pb-10">
@@ -37,7 +43,7 @@
 						<ChevronLeft class="h-4 w-4 stroke-1.5" />
 					</template>
 				</Button>
-				<div class="text-lg text-ink-gray-9 font-semibold">
+				<div class="text-2xl text-ink-gray-9 font-semibold">
 					{{ heading }}
 				</div>
 			</div>

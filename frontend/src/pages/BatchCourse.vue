@@ -107,16 +107,21 @@
 			>
 				<div class="flex items-center gap-3 px-5 py-4">
 					<Users class="h-5 w-5 stroke-1.5 text-ink-gray-6" />
-					<div>
+					<div v-if="page.data.classmates">
 						<dd class="text-lg font-semibold text-ink-gray-9">
 							{{ page.data.classmates }}
 						</dd>
 						<dt class="text-sm text-ink-gray-6">
-							{{
-								page.data.classmates == 1
-									? __('student from your batch')
-									: __('students from your batch')
-							}}
+							{{ studentsLabel }}
+						</dt>
+					</div>
+					<!-- An empty batch reads as a state, not as a count of zero. -->
+					<div v-else>
+						<dd class="text-base font-medium text-ink-gray-9">
+							{{ __('No students yet') }}
+						</dd>
+						<dt class="text-sm text-ink-gray-6">
+							{{ __('in this batch') }}
 						</dt>
 					</div>
 				</div>
@@ -288,6 +293,16 @@ const lockedLabel = computed(() => {
 		)
 	}
 	return __('Not open yet')
+})
+
+// "Your batch" only makes sense to someone in it; whoever runs the batch, or an
+// admin looking in, is told about "this batch" instead.
+const studentsLabel = computed(() => {
+	const one = page.data?.classmates == 1
+	if (page.data?.is_student) {
+		return one ? __('student in your batch') : __('students in your batch')
+	}
+	return one ? __('student in this batch') : __('students in this batch')
 })
 
 const hasDescription = computed(() => {

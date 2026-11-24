@@ -59,11 +59,11 @@
 			>
 				<Button variant="solid" class="w-full mt-4">
 					<template #prefix>
-						<LogIn v-if="isStudent" class="size-4 stroke-1.5" />
-						<Settings v-else class="size-4 stroke-1.5" />
+						<Settings v-if="managesBatch" class="size-4 stroke-1.5" />
+						<LogIn v-else class="size-4 stroke-1.5" />
 					</template>
 					<span>
-						{{ isStudent ? __('Visit Batch') : __('Manage Batch') }}
+						{{ managesBatch ? __('Manage Batch') : __('Visit Batch') }}
 					</span>
 				</Button>
 			</router-link>
@@ -207,6 +207,12 @@ const isEvaluator = computed(() => {
 const canEdit = computed(() => {
 	const flag = props.batch.data?.can_edit
 	return flag === undefined ? isModerator.value : !!flag
+})
+
+/* Staff manage a batch whether or not they are also on its roster - an admin
+   who joined through the batch's own link to test it is still an admin. */
+const managesBatch = computed(() => {
+	return !!(isModerator.value || isEvaluator.value)
 })
 
 const canAccessBatch = computed(() => {

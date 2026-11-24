@@ -372,6 +372,27 @@ const addAddUsers = () => {
 	})
 }
 
+// Moderators only: parishes are site-wide reference data that facilitators pick
+// from, not something each of them should be editing.
+const addParishes = () => {
+	if (!isModerator.value) return
+
+	if (sidebarLinks.value.some((link) => link.label === 'Parishes')) return
+
+	const batchesIndex = sidebarLinks.value.findIndex(
+		(link) => link.label === 'Batches'
+	)
+	const insertAt =
+		batchesIndex === -1 ? sidebarLinks.value.length : batchesIndex + 1
+
+	sidebarLinks.value.splice(insertAt, 0, {
+		label: 'Parishes',
+		icon: 'Church',
+		to: 'Parishes',
+		activeFor: ['Parishes'],
+	})
+}
+
 const addAssignments = () => {
 	if (!isInstructor.value && !isModerator.value) return
 
@@ -736,6 +757,7 @@ watch(userResource, () => {
 		addAssignments()
 		addStudents()
 		addAddUsers()
+		addParishes()
 		setUpOnboarding()
 	}
 })

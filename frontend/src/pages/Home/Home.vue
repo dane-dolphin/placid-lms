@@ -5,40 +5,49 @@
 		<Breadcrumbs :items="[{ label: __('Home'), route: { name: 'Home' } }]" />
 	</header> -->
 	<div class="w-full px-5 pt-5 pb-10">
-		<div class="space-y-2">
-			<div class="flex items-center justify-between">
-				<div class="text-xl font-bold text-ink-gray-9">
-					{{ __('Hey') }}, {{ user.data?.full_name }} 👋
-				</div>
-				<div>
-					<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
-					<div v-else-if="isEvaluatorOnly"></div>
-					<div
-						v-else
-						@click="showStreakModal = true"
-						class="bg-surface-amber-2 px-2 py-1 rounded-md cursor-pointer"
-					>
-						<span> 🔥 </span>
-						<span class="text-ink-gray-9">
-							{{ streakInfo.data?.current_streak }}
-						</span>
-					</div>
-				</div>
+		<!-- The greeting, as a banner: who you are, what is waiting for you today. -->
+		<div class="home-hero">
+			<div class="min-w-0">
+				<div class="text-sm font-medium text-ink-gray-6">{{ today }}</div>
+				<h1
+					class="mt-1 text-2xl font-semibold leading-tight text-ink-gray-9 sm:text-3xl"
+				>
+					{{ __('Welcome back, {0}').format(firstName) }}
+				</h1>
+				<p class="mt-1.5 text-base leading-6 text-ink-gray-7">
+					{{ subtitle }}
+				</p>
 			</div>
-
-			<div class="text-lg text-ink-gray-6 leading-6">
-				{{ subtitle }}
+			<div class="shrink-0">
+				<TabButtons v-if="isAdmin" v-model="currentTab" :buttons="tabs" />
+				<button
+					v-else-if="!isEvaluatorOnly"
+					type="button"
+					@click="showStreakModal = true"
+					class="home-streak"
+					:title="__('Your learning streak')"
+				>
+					<Flame class="size-4 stroke-2" />
+					<span class="font-semibold">
+						{{ streakInfo.data?.current_streak || 0 }}
+					</span>
+					<span class="text-sm">{{ __('day streak') }}</span>
+				</button>
 			</div>
 		</div>
 
-		
 		<AdminHome
 			v-if="isAdmin && currentTab === 'instructor'"
 			:liveClasses="adminLiveClasses"
 			:evals="adminEvals"
 		/>
 		<FacilitatorHome v-if="isEvaluatorOnly" />
-		<StudentHome v-else :myLiveClasses="myLiveClasses" />
+		<!-- Not alongside AdminHome: an admin on the Instructor tab used to get the
+		     student sections stacked underneath their own. -->
+		<StudentHome
+			v-else-if="!(isAdmin && currentTab === 'instructor')"
+			:myLiveClasses="myLiveClasses"
+		/>
 	</div>
 	<Streak v-model="showStreakModal" :streakInfo="streakInfo" />
 </template>
@@ -51,6 +60,7 @@ import {
 	TabButtons,
 	usePageMeta,
 } from 'frappe-ui'
+import { Flame } from 'lucide-vue-next'
 import { sessionStore } from '@/stores/session'
 import StudentHome from '@/pages/Home/StudentHome.vue'
 import AdminHome from '@/pages/Home/AdminHome.vue'
@@ -67,6 +77,16 @@ onMounted(() => {
 	call('lms.lms.utils.get_upcoming_evals').then((data: any) => {
 		evalCount.value = data.length
 	})
+})
+
+const firstName = computed(
+	() => user.data?.first_name || user.data?.full_name?.split(' ')[0] || ''
+)
+
+const today = new Date().toLocaleDateString(undefined, {
+	weekday: 'long',
+	day: 'numeric',
+	month: 'long',
 })
 
 const isAdmin = computed(() => {
@@ -184,3 +204,36 @@ usePageMeta(() => {
 	}
 })
 </script>
+<style scoped>
+.home-hero {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 1.5rem 1.75rem;
+	border: 1px solid var(--pa-hairline);
+	border-radius: 0.875rem;
+	background: radial-gradient(
+			120% 140% at 100% 0%,
+			rgba(106, 195, 175, 0.22),
+			rgba(106, 195, 175, 0) 55%
+		),
+		var(--pa-wash);
+}
+
+.home-streak {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	padding: 0.5rem 0.875rem;
+	border: 1px solid var(--pa-hairline);
+	border-radius: 9999px;
+	background: var(--surface-white);
+	color: var(--ink-gray-8);
+}
+
+.home-streak svg {
+	color: #d97706;
+}
+</style>
