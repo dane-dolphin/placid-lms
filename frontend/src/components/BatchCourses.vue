@@ -20,8 +20,8 @@
 					showTooltip: false,
 					selectable: user.data?.is_student ? false : true,
 					getRowRoute: (row) => ({
-						name: 'CourseDetail',
-						params: { courseName: row.name },
+						name: 'BatchCourse',
+						params: { batchName: batch, courseName: row.name },
 					}),
 				}"
 			>

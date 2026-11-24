@@ -60,6 +60,12 @@ const routes = [
 		props: true,
 	},
 	{
+		path: '/batches/:batchName/courses/:courseName',
+		name: 'BatchCourse',
+		component: () => import('@/pages/BatchCourse.vue'),
+		props: true,
+	},
+	{
 		path: '/batches/:batchName',
 		name: 'Batch',
 		component: () => import('@/pages/Batch.vue'),
